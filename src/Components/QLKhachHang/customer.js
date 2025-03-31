@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const customersFilePath = path.join(__dirname, 'public', 'customers_with_full_info.json');
+const customersFilePath = path.resolve(__dirname, '../../../public/customers_with_full_info.json');
 
 const readCustomersFromFile = () => {
   const data = fs.readFileSync(customersFilePath, 'utf8');

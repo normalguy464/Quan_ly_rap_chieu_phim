@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Form, Input } from 'antd';
+import { Modal, Form, Input, DatePicker } from 'antd';
 import axios from 'axios';
 
 const ThemKhachHang = ({ isModalVisible, handleCancel }) => {
@@ -11,10 +11,11 @@ const ThemKhachHang = ({ isModalVisible, handleCancel }) => {
         console.log('Form values:', values);
         axios.post('http://localhost:5001/api/addCustomer', {
           fullname: values.name,
-          birthdate: values.dob,
+          birthdate: values.dob.format('YYYY-MM-DD'), // Chuyển đổi ngày sinh
           address: values.address,
           phone_number: values.phone,
-          email: values.email
+          email: values.email,
+          reward_point: 0, // Giá trị mặc định cho điểm thưởng
         })
         .then(response => {
           console.log('Response:', response.data);
@@ -36,8 +37,8 @@ const ThemKhachHang = ({ isModalVisible, handleCancel }) => {
         <Form.Item label="Tên" name="name" rules={[{ required: true, message: 'Vui lòng nhập tên' }]}>
           <Input />
         </Form.Item>
-        <Form.Item label="Ngày tháng năm sinh" name="dob" rules={[{ required: true, message: 'Vui lòng nhập ngày tháng năm sinh' }]}>
-          <Input placeholder="dd/mm/yyyy" />
+        <Form.Item label="Ngày sinh" name="dob" rules={[{ required: true, message: 'Vui lòng chọn ngày sinh' }]}>
+          <DatePicker format="YYYY-MM-DD" />
         </Form.Item>
         <Form.Item label="Địa chỉ" name="address" rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}>
           <Input />

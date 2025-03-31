@@ -105,6 +105,11 @@ const DanhSachKhachHang = () => {
       key: 'phone_number',
     },
     {
+      title: 'Birthdate',
+      dataIndex: 'birthdate',
+      key: 'birthdate',
+    },
+    {
       title: 'Reward Point',
       dataIndex: 'reward_point',
       key: 'reward_point',

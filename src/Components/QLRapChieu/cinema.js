@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const cinemasFilePath = path.join(__dirname, 'public', 'cinemas_with_full_info.json');
+const cinemasFilePath = path.resolve(__dirname, '../../../public/cinemas_with_full_info.json');
 
 const readCinemasFromFile = () => {
   const data = fs.readFileSync(cinemasFilePath, 'utf8');

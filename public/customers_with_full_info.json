@@ -3,7 +3,7 @@
     "key": 1,
     "id": 1,
     "email": "user1@example.com",
-    "fullname": "Customer 1",
+    "fullname": "Customer 12",
     "address": "456 Elm St, City B",
     "phone_number": "+1-555-9677",
     "birthdate": "1974-08-16",
@@ -88,16 +88,6 @@
     "phone_number": "+1-555-5877",
     "birthdate": "2004-06-18",
     "reward_point": 97400
-  },
-  {
-    "key": 10,
-    "id": 10,
-    "email": "user10@example.com",
-    "fullname": "Customer 10",
-    "address": "321 Pine St, City D",
-    "phone_number": "+1-555-9647",
-    "birthdate": "1982-08-23",
-    "reward_point": 373500
   },
   {
     "key": 11,
@@ -988,15 +978,5 @@
     "phone_number": "+1-555-4845",
     "birthdate": "2004-10-17",
     "reward_point": 55700
-  },
-  {
-    "key": 100,
-    "id": 100,
-    "email": "user100@example.com",
-    "fullname": "Customer 100",
-    "address": "123 Main St, City A",
-    "phone_number": "+1-555-6226",
-    "birthdate": "2004-12-16",
-    "reward_point": 265600
   }
 ]
