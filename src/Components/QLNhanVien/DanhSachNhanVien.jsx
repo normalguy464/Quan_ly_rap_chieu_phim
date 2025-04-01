@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Table, Form, Input } from 'antd';
-import axios from 'axios';
+import { useUserApi } from '../../services/userService'; // Import userService
 
 const { Search } = Input;
 
@@ -10,16 +10,21 @@ const DanhSachNhanVien = () => {
   const [selectedEmployee, setSelectedEmployee] = useState(null); 
   const [isEditModalVisible, setIsEditModalVisible] = useState(false); 
   const [form] = Form.useForm();
+  const userService = useUserApi(); // Initialize userService
 
-  const fetchEmployeeList = () => {
-    axios.get('/users_with_full_info.json')
-      .then(response => {
-        setData(response.data);
-        setFilteredData(response.data); // Khởi tạo dữ liệu đã lọc bằng dữ liệu gốc
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-      });
+  const fetchEmployeeList = async () => {
+    try {
+      const users = await userService.getAllUser();
+      if (Array.isArray(users)) { // Ensure users is an array
+        const adminUsers = users.filter(user => user.roles[0] === 'admin'); // Filter users with role 'admin'
+        setData(adminUsers);
+        setFilteredData(adminUsers); // Initialize filtered data with admin users
+      } else {
+        console.error('Error: users is not an array');
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
   };
 
   const handleEditEmployee = (record) => {
@@ -33,36 +38,29 @@ const DanhSachNhanVien = () => {
     setSelectedEmployee(null);
   };
 
-  const handleEditModalOk = () => {
-    form.validateFields()
-      .then(values => {
-        // Gửi yêu cầu PUT tới server để cập nhật thông tin nhân viên
-        axios.put(`http://localhost:5001/api/updateUser/${selectedEmployee.id}`, values)
-          .then(response => {
-            console.log(response.data);
-            fetchEmployeeList(); // Cập nhật danh sách nhân viên sau khi chỉnh sửa
-            setIsEditModalVisible(false);
-            setSelectedEmployee(null);
-          })
-          .catch(error => {
-            console.error('Error updating user:', error);
-          });
-      })
-      .catch(info => {
-        console.log('Validate Failed:', info);
-      });
+  const handleEditModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+      const success = await userService.updateUserById(selectedEmployee.id, values);
+      if (success) {
+        fetchEmployeeList(); // Refresh employee list after editing
+        setIsEditModalVisible(false);
+        setSelectedEmployee(null);
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+    }
   };
 
-  const handleDeleteEmployee = (id) => {
-    // Gửi yêu cầu DELETE tới server để xóa nhân viên
-    axios.delete(`http://localhost:5001/api/deleteUser/${id}`)
-      .then(response => {
-        console.log(response.data);
-        fetchEmployeeList(); // Cập nhật danh sách nhân viên sau khi xóa
-      })
-      .catch(error => {
-        console.error('Error deleting user:', error);
-      });
+  const handleDeleteEmployee = async (id) => {
+    try {
+      const success = await userService.deleteUser(id);
+      if (success) {
+        fetchEmployeeList(); // Refresh employee list after deletion
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    }
   };
 
   const handleSearch = (value) => {

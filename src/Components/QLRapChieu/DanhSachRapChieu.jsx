@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Table, Form, Input } from 'antd';
-import axios from 'axios';
+import { useCinemaApi } from '../../services/cinemaService';
 
 const { Search } = Input;
 
@@ -12,28 +12,27 @@ const DanhSachRapChieu = () => {
   const [isRoomModalVisible, setIsRoomModalVisible] = useState(false);
   const [rooms, setRooms] = useState([]);
   const [form] = Form.useForm();
+  const cinemaService = useCinemaApi();
 
-  const fetchCinemaList = () => {
-    axios.get('/cinemas_with_full_info.json')
-      .then(response => {
-        setData(response.data);
-        setFilteredData(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-      });
+  const fetchCinemaList = async () => {
+    try {
+      const cinemas = await cinemaService.getAllCinema();
+      console.log(cinemas);
+      setData(cinemas);
+      setFilteredData(cinemas);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
   };
 
-  const fetchRooms = (cinemaId) => {
-    axios.get('/rooms_with_full_info.json')
-      .then(response => {
-        const roomsData = response.data[`cinema_${cinemaId}`] || [];
-        setRooms(roomsData);
-        setIsRoomModalVisible(true);
-      })
-      .catch(error => {
-        console.error('Error fetching rooms:', error);
-      });
+  const fetchRooms = async (cinemaId) => {
+    try {
+      const roomsData = await cinemaService.getCinemaById(cinemaId);
+      setRooms(roomsData.rooms || []);
+      setIsRoomModalVisible(true);
+    } catch (error) {
+      console.error('Error fetching rooms:', error);
+    }
   };
 
   const handleEditCinema = (record) => {
@@ -47,34 +46,29 @@ const DanhSachRapChieu = () => {
     setSelectedCinema(null);
   };
 
-  const handleEditModalOk = () => {
-    form.validateFields()
-      .then(values => {
-        axios.put(`http://localhost:5001/api/updateCinema/${selectedCinema.id}`, values)
-          .then(response => {
-            console.log(response.data);
-            fetchCinemaList();
-            setIsEditModalVisible(false);
-            setSelectedCinema(null);
-          })
-          .catch(error => {
-            console.error('Error updating cinema:', error);
-          });
-      })
-      .catch(info => {
-        console.log('Validate Failed:', info);
-      });
+  const handleEditModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+      const success = await cinemaService.updateCinemaById(selectedCinema.id, values);
+      if (success) {
+        fetchCinemaList();
+        setIsEditModalVisible(false);
+        setSelectedCinema(null);
+      }
+    } catch (error) {
+      console.error('Error updating cinema:', error);
+    }
   };
 
-  const handleDeleteCinema = (id) => {
-    axios.delete(`http://localhost:5001/api/deleteCinema/${id}`)
-      .then(response => {
-        console.log(response.data);
+  const handleDeleteCinema = async (id) => {
+    try {
+      const success = await cinemaService.deleteCinema(id);
+      if (success) {
         fetchCinemaList();
-      })
-      .catch(error => {
-        console.error('Error deleting cinema:', error);
-      });
+      }
+    } catch (error) {
+      console.error('Error deleting cinema:', error);
+    }
   };
 
   const handleSearch = (value) => {

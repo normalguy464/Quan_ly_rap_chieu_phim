@@ -1,26 +1,23 @@
 import React from 'react';
 import { Modal, Form, Input } from 'antd';
-import axios from 'axios';
+import { usePromotionApi } from '../../services/promotionService';
 
 const ThemKhuyenMai = ({ isModalVisible, handleCancel }) => {
   const [form] = Form.useForm();
+  const { createPromotion } = usePromotionApi();
 
   const onOk = () => {
     form.validateFields()
-      .then(values => {
-        axios.post('http://localhost:5001/api/addPromotion', {
+      .then(async values => {
+        const success = await createPromotion({
           description: values.description,
           start_date: values.start_date,
           end_date: values.end_date
-        })
-        .then(response => {
-          console.log('Response:', response.data);
+        });
+        if (success) {
           form.resetFields();
           handleCancel();
-        })
-        .catch(error => {
-          console.error('Error adding promotion:', error);
-        });
+        }
       })
       .catch(info => {
         console.log('Validate Failed:', info);

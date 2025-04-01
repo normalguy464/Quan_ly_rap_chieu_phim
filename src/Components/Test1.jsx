@@ -12,12 +12,12 @@ import ThemNhanVien from './QLNhanVien/ThemNhanVien';
 import DanhSachNhanVien from './QLNhanVien/DanhSachNhanVien';
 import ThemKhachHang from './QLKhachHang/ThemKhachHang';
 import DanhSachKhachHang from './QLKhachHang/DanhSachKhachHang';
-// import ThemPhongChieu from './QLRapChieu/QLPhongChieu/ThemPhongChieu';
-// import DanhSachPhongChieu from './QLRapChieu/QLPhongChieu/DanhSachPhongChieu';
 import ThemRapChieu from './QLRapChieu/ThemRapChieu';
 import DanhSachRapChieu from './QLRapChieu/DanhSachRapChieu';
 import ThemKhuyenMai from './QLKhuyenMai/ThemKhuyenMai';
 import DanhSachKhuyenMai from './QLKhuyenMai/DanhSachKhuyenMai';
+import DanhSachPhim from './QLPhim/DanhSachPhim';
+import ThemPhim from './QLPhim/ThemPhim'; // Import ThemPhim component
 const { Header, Content, Footer, Sider } = Layout;
 
 function getItem(label, key, icon, children, onClick) {
@@ -38,8 +38,8 @@ const App = () => {
   const [isCinemaModalVisible, setIsCinemaModalVisible] = useState(false);
   const [isRoomModalVisible, setIsRoomModalVisible] = useState(false);
   const [isPromotionModalVisible, setIsPromotionModalVisible] = useState(false);
+  const [isMovieModalVisible, setIsMovieModalVisible] = useState(false); // State for movie modal
   const [activeView, setActiveView] = useState(null); 
-
 
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -101,6 +101,14 @@ const App = () => {
     setIsCinemaModalVisible(false);
   };
 
+  const showMovieModal = () => {
+    setIsMovieModalVisible(true);
+  };
+
+  const handleMovieCancel = () => {
+    setIsMovieModalVisible(false);
+  };
+
   const menu = (
     <Menu>
       <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout}>
@@ -120,8 +128,8 @@ const App = () => {
       getItem('Xem danh sách khách hàng', '11', <UserOutlined />, null, () => setActiveView('customers')), // Hiển thị danh sách khách hàng
     ]),
     getItem('Quản lý danh sách phim', '12', <VideoCameraOutlined />, [
-      getItem('Thêm phim mới', '13', <VideoCameraOutlined />, null, showFilmModal),
-      getItem('Xem danh sách phim', '16', <VideoCameraOutlined />),
+      getItem('Thêm phim mới', '13', <VideoCameraOutlined />, null, showMovieModal), // Show movie modal
+      getItem('Xem danh sách phim', '16', <VideoCameraOutlined />, null, () => setActiveView('films')), // Hiển thị danh sách phim
     ]),
     getItem('Quản lý rạp chiếu', '17', <HomeOutlined />, [
       getItem('Thêm rạp chiếu', '18', <HomeOutlined />, null, showCinemaModal),
@@ -188,10 +196,12 @@ const App = () => {
               <ThemKhachHang isModalVisible={isCustomerModalVisible} handleCancel={handleCustomerCancel}/>
               <ThemRapChieu isModalVisible={isCinemaModalVisible} handleCancel={handleCinemaCancel}/>
               <ThemKhuyenMai isModalVisible={isPromotionModalVisible} handleCancel={handlePromotionCancel}/>
+              <ThemPhim isModalVisible={isMovieModalVisible} handleCancel={handleMovieCancel} /> {/* Add ThemPhim modal */}
               {activeView === 'employees' && <DanhSachNhanVien />}
               {activeView === 'customers' && <DanhSachKhachHang />}
               {activeView === 'cinemas' && <DanhSachRapChieu />}
               {activeView === 'promotions' && <DanhSachKhuyenMai />}
+              {activeView === 'films' && <DanhSachPhim />} {/* Hiển thị danh sách phim */}
               
             </div>
           </Content>

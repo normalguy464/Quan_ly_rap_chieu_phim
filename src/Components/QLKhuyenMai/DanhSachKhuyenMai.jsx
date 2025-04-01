@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Table, Form, Input } from 'antd';
-import axios from 'axios';
+import { usePromotionApi } from '../../services/promotionService'; // Import promotionService
 
 const { Search } = Input;
 
@@ -10,16 +10,16 @@ const DanhSachKhuyenMai = () => {
   const [selectedPromotion, setSelectedPromotion] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const promotionService = usePromotionApi();
 
-  const fetchPromotionList = () => {
-    axios.get('/promotions_with_full_info.json')
-      .then(response => {
-        setData(response.data);
-        setFilteredData(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-      });
+  const fetchPromotionList = async () => {
+    try {
+      const promotions = await promotionService.getAllPromotion();
+      setData(promotions);
+      setFilteredData(promotions);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
   };
 
   const handleEditPromotion = (record) => {
@@ -33,34 +33,29 @@ const DanhSachKhuyenMai = () => {
     setSelectedPromotion(null);
   };
 
-  const handleEditModalOk = () => {
-    form.validateFields()
-      .then(values => {
-        axios.put(`http://localhost:5001/api/updatePromotion/${selectedPromotion.id}`, values)
-          .then(response => {
-            console.log(response.data);
-            fetchPromotionList();
-            setIsEditModalVisible(false);
-            setSelectedPromotion(null);
-          })
-          .catch(error => {
-            console.error('Error updating promotion:', error);
-          });
-      })
-      .catch(info => {
-        console.log('Validate Failed:', info);
-      });
+  const handleEditModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+      const success = await promotionService.updatePromotionById(selectedPromotion.id, values);
+      if (success) {
+        fetchPromotionList();
+        setIsEditModalVisible(false);
+        setSelectedPromotion(null);
+      }
+    } catch (error) {
+      console.error('Error updating promotion:', error);
+    }
   };
 
-  const handleDeletePromotion = (id) => {
-    axios.delete(`http://localhost:5001/api/deletePromotion/${id}`)
-      .then(response => {
-        console.log(response.data);
+  const handleDeletePromotion = async (id) => {
+    try {
+      const success = await promotionService.deletePromotion(id);
+      if (success) {
         fetchPromotionList();
-      })
-      .catch(error => {
-        console.error('Error deleting promotion:', error);
-      });
+      }
+    } catch (error) {
+      console.error('Error deleting promotion:', error);
+    }
   };
 
   const handleSearch = (value) => {
@@ -94,11 +89,6 @@ const DanhSachKhuyenMai = () => {
       dataIndex: 'description',
       key: 'description',
     },
-    // {
-    //   title: 'Discount',
-    //   dataIndex: 'discount',
-    //   key: 'discount',
-    // },
     {
       title: 'Start Date',
       dataIndex: 'start_date',
@@ -145,9 +135,6 @@ const DanhSachKhuyenMai = () => {
           <Form.Item label="Mô tả" name="description" rules={[{ required: true, message: 'Vui lòng nhập mô tả' }]}>
             <Input />
           </Form.Item>
-          {/* <Form.Item label="Giảm giá" name="discount" rules={[{ required: true, message: 'Vui lòng nhập giảm giá' }]}>
-            <Input />
-          </Form.Item> */}
           <Form.Item label="Ngày bắt đầu" name="start_date" rules={[{ required: true, message: 'Vui lòng nhập ngày bắt đầu' }]}>
             <Input placeholder="dd/mm/yyyy" />
           </Form.Item>

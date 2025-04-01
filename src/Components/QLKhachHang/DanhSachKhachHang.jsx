@@ -1,66 +1,67 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Button, Table, Form, Input } from 'antd';
-import axios from 'axios';
+import { Modal, Button, Table, Form, Input, DatePicker } from 'antd';
+import { useUserApi } from '../../services/userService'; // Import userService
 
 const { Search } = Input;
 
 const DanhSachKhachHang = () => {
-  const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [data, setData] = useState([]); 
+  const [filteredData, setFilteredData] = useState([]); 
+  const [selectedEmployee, setSelectedEmployee] = useState(null); 
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false); 
   const [form] = Form.useForm();
+  const userService = useUserApi(); // Initialize userService
 
-  const fetchCustomerList = () => {
-    axios.get('/customers_with_full_info.json')
-      .then(response => {
-        setData(response.data);
-        setFilteredData(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-      });
+  const fetchEmployeeList = async () => {
+    try {
+      const users = await userService.getAllUser();
+      if (Array.isArray(users)) { // Ensure users is an array
+        const customerUsers = users.filter(user => user.roles[0] === 'user'); // Filter users with role 'admin'
+        console.log(customerUsers); // Log the fetched users for debugging
+        setData(customerUsers);
+        setFilteredData(customerUsers); // Initialize filtered data with admin users
+      } else {
+        console.error('Error: users is not an array');
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
   };
 
-  const handleEditCustomer = (record) => {
-    setSelectedCustomer(record);
+  const handleEditEmployee = (record) => {
+    setSelectedEmployee(record);
     form.setFieldsValue(record);
     setIsEditModalVisible(true);
   };
 
   const handleEditModalCancel = () => {
     setIsEditModalVisible(false);
-    setSelectedCustomer(null);
+    setSelectedEmployee(null);
   };
 
-  const handleEditModalOk = () => {
-    form.validateFields()
-      .then(values => {
-        axios.put(`http://localhost:5001/api/updateCustomer/${selectedCustomer.id}`, values)
-          .then(response => {
-            console.log(response.data);
-            fetchCustomerList();
-            setIsEditModalVisible(false);
-            setSelectedCustomer(null);
-          })
-          .catch(error => {
-            console.error('Error updating customer:', error);
-          });
-      })
-      .catch(info => {
-        console.log('Validate Failed:', info);
-      });
+  const handleEditModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+      const success = await userService.updateUserById(selectedEmployee.id, values);
+      if (success) {
+        fetchEmployeeList(); // Refresh employee list after editing
+        setIsEditModalVisible(false);
+        setSelectedEmployee(null);
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+    }
   };
 
-  const handleDeleteCustomer = (id) => {
-    axios.delete(`http://localhost:5001/api/deleteCustomer/${id}`)
-      .then(response => {
-        console.log(response.data);
-        fetchCustomerList();
-      })
-      .catch(error => {
-        console.error('Error deleting customer:', error);
-      });
+  const handleDeleteEmployee = async (id) => {
+    try {
+      const success = await userService.deleteUser(id);
+      if (success) {
+        fetchEmployeeList(); // Refresh employee list after deletion
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    }
   };
 
   const handleSearch = (value) => {
@@ -75,7 +76,7 @@ const DanhSachKhachHang = () => {
   };
 
   useEffect(() => {
-    fetchCustomerList();
+    fetchEmployeeList();
   }, []);
 
   const columns = [
@@ -95,6 +96,11 @@ const DanhSachKhachHang = () => {
       key: 'fullname',
     },
     {
+      title: 'Role',
+      dataIndex: 'role',
+      key: 'role',
+    },
+    {
       title: 'Address',
       dataIndex: 'address',
       key: 'address',
@@ -105,17 +111,12 @@ const DanhSachKhachHang = () => {
       key: 'phone_number',
     },
     {
-      title: 'Reward Point',
-      dataIndex: 'reward_point',
-      key: 'reward_point',
-    },
-    {
       title: 'Action',
       key: 'action',
       render: (_, record) => (
         <span>
-          <Button type="primary" style={{ marginRight: 8 }} onClick={() => handleEditCustomer(record)}>Cập nhật</Button>
-          <Button type="default" onClick={() => handleDeleteCustomer(record.id)}>Xóa</Button>
+          <Button type="primary" style={{ marginRight: 8 }} onClick={() => handleEditEmployee(record)}>Cập nhật</Button>
+          <Button type="default" onClick={() => handleDeleteEmployee(record.id)}>Xóa</Button>
         </span>
       ),
     },
@@ -124,16 +125,16 @@ const DanhSachKhachHang = () => {
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h1>Danh sách khách hàng</h1>
+        <h1>Danh sách nhân viên</h1>
         <Search
-          placeholder="Tìm kiếm khách hàng"
+          placeholder="Tìm kiếm nhân viên"
           onSearch={handleSearch}
-          style={{ width: 300, border: '2px solid #d9d9d9', borderRadius: 4, marginTop: -8 }}
+          style={{ width: 300, border: '2px solid #d9d9d9', borderRadius: 4}}
         />
       </div>
-      <Table columns={columns} dataSource={filteredData} />
+      <Table columns={columns} dataSource={filteredData} /> {/* Hiển thị bảng danh sách nhân viên */}
       <Modal
-        title="Chỉnh sửa thông tin khách hàng"
+        title="Chỉnh sửa thông tin nhân viên"
         visible={isEditModalVisible}
         onCancel={handleEditModalCancel}
         onOk={handleEditModalOk}
@@ -143,7 +144,7 @@ const DanhSachKhachHang = () => {
             <Input />
           </Form.Item>
           <Form.Item label="Ngày tháng năm sinh" name="birthdate" rules={[{ required: true, message: 'Vui lòng nhập ngày tháng năm sinh' }]}>
-            <Input placeholder="dd/mm/yyyy" />
+            <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item label="Địa chỉ" name="address" rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}>
             <Input />
@@ -152,9 +153,6 @@ const DanhSachKhachHang = () => {
             <Input />
           </Form.Item>
           <Form.Item label="Email" name="email" rules={[{ required: true, message: 'Vui lòng nhập email' }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item label="Reward Points" name="reward_point" rules={[{ required: true, message: 'Vui lòng nhập điểm thưởng' }]}>
             <Input />
           </Form.Item>
         </Form>

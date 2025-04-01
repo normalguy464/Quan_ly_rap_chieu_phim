@@ -1,25 +1,23 @@
 import React from 'react';
 import { Modal, Form, Input } from 'antd';
-import axios from 'axios';
+import { useCinemaApi } from '../../services/cinemaService';
 
 const ThemRapChieu = ({ isModalVisible, handleCancel }) => {
   const [form] = Form.useForm();
+  const { createCinema } = useCinemaApi();
 
   const onOk = () => {
     form.validateFields()
-      .then(values => {
-        axios.post('http://localhost:5001/api/addCinema', {
+      .then(async values => {
+        const success = await createCinema({
           name: values.name,
-          address: values.address
-        })
-        .then(response => {
-          console.log('Response:', response.data);
+          address: values.address,
+          phone_number: values.phoneNumber
+        });
+        if (success) {
           form.resetFields();
           handleCancel();
-        })
-        .catch(error => {
-          console.error('Error adding cinema:', error);
-        });
+        }
       })
       .catch(info => {
         console.log('Validate Failed:', info);
@@ -33,6 +31,9 @@ const ThemRapChieu = ({ isModalVisible, handleCancel }) => {
           <Input />
         </Form.Item>
         <Form.Item label="Địa chỉ" name="address" rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item label="Số điẹn thoại" name="phoneNumber" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}>
           <Input />
         </Form.Item>
       </Form>
