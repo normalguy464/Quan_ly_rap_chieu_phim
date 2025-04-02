@@ -16,6 +16,10 @@ import ThemRapChieu from './QLRapChieu/ThemRapChieu';
 import DanhSachRapChieu from './QLRapChieu/DanhSachRapChieu';
 import ThemKhuyenMai from './QLKhuyenMai/ThemKhuyenMai';
 import DanhSachKhuyenMai from './QLKhuyenMai/DanhSachKhuyenMai';
+import ThemTheLoai from './QLTheLoai/ThemTheLoai';
+import DanhSachTheLoai from './QLTheLoai/DanhSachTheLoai';
+import ThemSuatChieu from './QLSuatChieu/ThemSuatChieu';
+import DanhSachSuatChieu from './QLSuatChieu/DanhSachSuatChieu';
 import DanhSachPhim from './QLPhim/DanhSachPhim';
 import ThemPhim from './QLPhim/ThemPhim'; // Import ThemPhim component
 const { Header, Content, Footer, Sider } = Layout;
@@ -38,6 +42,8 @@ const App = () => {
   const [isCinemaModalVisible, setIsCinemaModalVisible] = useState(false);
   const [isRoomModalVisible, setIsRoomModalVisible] = useState(false);
   const [isPromotionModalVisible, setIsPromotionModalVisible] = useState(false);
+  const [isGenreModalVisible, setIsGenreModalVisible] = useState(false);
+  const [isShowtimeModalVisible, setIsShowtimeModalVisible] = useState(false);
   const [isMovieModalVisible, setIsMovieModalVisible] = useState(false); // State for movie modal
   const [activeView, setActiveView] = useState(null); 
 
@@ -101,6 +107,22 @@ const App = () => {
     setIsCinemaModalVisible(false);
   };
 
+  const showGenreModal = () => {
+    setIsGenreModalVisible(true);
+  };
+
+  const handleGenreCancel = () => {
+    setIsGenreModalVisible(false);
+  };
+
+  const showShowtimeModal = () => {
+    setIsShowtimeModalVisible(true);
+  };
+
+  const handleShowtimeCancel = () => {
+    setIsShowtimeModalVisible(false);
+  };
+
   const showMovieModal = () => {
     setIsMovieModalVisible(true);
   };
@@ -138,6 +160,14 @@ const App = () => {
     getItem('Quản lý khuyến mãi', '23', <GiftOutlined />, [
       getItem('Thêm khuyến mãi', '24', <GiftOutlined />, null, showPromotionModal),
       getItem('Xem danh sách khuyến mãi', '25', <GiftOutlined />, null, () => setActiveView('promotions')),
+    ]),
+    getItem('Quản lý thể loại', '50', <HomeOutlined />, [
+      getItem('Thêm thể loại', '51', <HomeOutlined />, null, showGenreModal),
+      getItem('Xem danh sách thể loại', '52', <HomeOutlined />, null, () => setActiveView('genres')),
+    ]),
+    getItem('Quản lý suất chiếu', '60', <VideoCameraOutlined />, [
+      getItem('Thêm suất chiếu', '61', <VideoCameraOutlined />, null, showShowtimeModal),
+      getItem('Xem danh sách suất chiếu', '62', <VideoCameraOutlined />, null, () => setActiveView('showtimes')),
     ]),
   ];
 
@@ -196,11 +226,15 @@ const App = () => {
               <ThemKhachHang isModalVisible={isCustomerModalVisible} handleCancel={handleCustomerCancel}/>
               <ThemRapChieu isModalVisible={isCinemaModalVisible} handleCancel={handleCinemaCancel}/>
               <ThemKhuyenMai isModalVisible={isPromotionModalVisible} handleCancel={handlePromotionCancel}/>
+              <ThemTheLoai isModalVisible={isGenreModalVisible} handleCancel={handleGenreCancel}/>
+              <ThemSuatChieu isModalVisible={isShowtimeModalVisible} handleCancel={handleShowtimeCancel} />
               <ThemPhim isModalVisible={isMovieModalVisible} handleCancel={handleMovieCancel} /> {/* Add ThemPhim modal */}
               {activeView === 'employees' && <DanhSachNhanVien />}
               {activeView === 'customers' && <DanhSachKhachHang />}
               {activeView === 'cinemas' && <DanhSachRapChieu />}
               {activeView === 'promotions' && <DanhSachKhuyenMai />}
+              {activeView === 'genres' && <DanhSachTheLoai />}
+              {activeView === 'showtimes' && <DanhSachSuatChieu />}
               {activeView === 'films' && <DanhSachPhim />} {/* Hiển thị danh sách phim */}
               
             </div>

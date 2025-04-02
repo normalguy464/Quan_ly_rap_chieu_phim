@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Table, Form, Input, DatePicker } from 'antd';
 import { useUserApi } from '../../services/userService'; // Import userService
+import dayjs from 'dayjs'; // Import dayjs for date handling
 
 const { Search } = Input;
 
@@ -30,7 +31,10 @@ const DanhSachKhachHang = () => {
 
   const handleEditEmployee = (record) => {
     setSelectedEmployee(record);
-    form.setFieldsValue(record);
+    form.setFieldsValue({
+      ...record,
+      birthdate: record.birthdate ? dayjs(record.birthdate, 'YYYY-MM-DD') : null, // Ensure birthdate is a dayjs object
+    });
     setIsEditModalVisible(true);
   };
 
@@ -42,7 +46,11 @@ const DanhSachKhachHang = () => {
   const handleEditModalOk = async () => {
     try {
       const values = await form.validateFields();
-      const success = await userService.updateUserById(selectedEmployee.id, values);
+      const formattedValues = {
+        ...values,
+        birthdate: values.birthdate ? values.birthdate.format('YYYY-MM-DD') : null, // Format birthdate before sending to API
+      };
+      const success = await userService.updateUserById(selectedEmployee.id, formattedValues);
       if (success) {
         fetchEmployeeList(); // Refresh employee list after editing
         setIsEditModalVisible(false);
@@ -111,6 +119,7 @@ const DanhSachKhachHang = () => {
       key: 'phone_number',
     },
     {
+
       title: 'Action',
       key: 'action',
       render: (_, record) => (

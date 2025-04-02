@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const usersFilePath = path.join(__dirname, 'public', 'users_with_full_info.json');
+const usersFilePath = path.resolve(__dirname, '../../../public/users_with_full_info.json');
 
 // Đọc dữ liệu từ file JSON
 const readUsersFromFile = () => {

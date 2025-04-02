@@ -110,6 +110,11 @@ const DanhSachNhanVien = () => {
       key: 'phone_number',
     },
     {
+      title: 'Birthdate',
+      dataIndex: 'birthdate',
+      key: 'birthdate',
+    },
+    {
       title: 'Action',
       key: 'action',
       render: (_, record) => (

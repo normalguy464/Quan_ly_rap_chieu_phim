@@ -1,31 +1,28 @@
 import React from 'react';
 import { Modal, Form, Input, DatePicker } from 'antd';
-import axios from 'axios';
+import { useUserApi } from '../../services/userService'; // Import userService
 
 const ThemNhanVien = ({ isModalVisible, handleCancel }) => {
   const [form] = Form.useForm();
+  const { createUser } = useUserApi(); // Destructure createUser from userService
 
   const onOk = () => {
     form.validateFields()
-      .then(values => {
-        console.log('Form values:', values); // Thêm dòng này để kiểm tra giá trị form
-        // Gửi yêu cầu POST tới server để thêm nhân viên mới
-        axios.post('http://localhost:5001/api/addUser', {
-          username: values.username,
-          full_name: values.full_name,
-          birthdate: values.birthdate,
+      .then(async values => {
+        console.log('Form values:', values);
+        const formattedBirthdate = values.birthdate.toISOString().split('T')[0]; // Format birthdate to remove time
+        const success = await createUser({
+          username: values.username, // Add username field
+          full_name: values.fullname,
+          birthdate: formattedBirthdate, // Use formatted birthdate
           address: values.address,
           phone_number: values.phone,
           email: values.email
-        })
-        .then(response => {
-          console.log('Response:', response.data); // Thêm dòng này để kiểm tra phản hồi từ server
-          form.resetFields();
-          handleCancel(); // Đóng modal sau khi thêm nhân viên thành công
-        })
-        .catch(error => {
-          console.error('Error adding user:', error);
         });
+        if (success) {
+          form.resetFields(); // Reset all fields
+          handleCancel();
+        }
       })
       .catch(info => {
         console.log('Validate Failed:', info);
@@ -38,7 +35,7 @@ const ThemNhanVien = ({ isModalVisible, handleCancel }) => {
         <Form.Item label="Tên đăng nhập" name="username" rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập' }]}>
           <Input />
         </Form.Item>
-        <Form.Item label="Tên" name="full_name" rules={[{ required: true, message: 'Vui lòng nhập tên' }]}>
+        <Form.Item label="Tên" name="fullname" rules={[{ required: true, message: 'Vui lòng nhập tên' }]}>
           <Input />
         </Form.Item>
         <Form.Item label="Ngày tháng năm sinh" name="birthdate" rules={[{ required: true, message: 'Vui lòng nhập ngày tháng năm sinh' }]}>

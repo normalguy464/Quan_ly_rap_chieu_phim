@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Table, Form, Input } from 'antd';
 import { useCinemaApi } from '../../services/cinemaService';
+import ThemRapChieu from './ThemRapChieu';
 
 const { Search } = Input;
 
@@ -10,6 +11,7 @@ const DanhSachRapChieu = () => {
   const [selectedCinema, setSelectedCinema] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isRoomModalVisible, setIsRoomModalVisible] = useState(false);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [rooms, setRooms] = useState([]);
   const [form] = Form.useForm();
   const cinemaService = useCinemaApi();
@@ -120,13 +122,23 @@ const DanhSachRapChieu = () => {
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>Danh sách rạp chiếu</h1>
-        <Search
-          placeholder="Tìm kiếm rạp chiếu"
-          onSearch={handleSearch}
-          style={{ width: 300, border: '2px solid #d9d9d9', borderRadius: 4, marginTop: -8 }}
-        />
+        <div>
+          <Button type="primary" onClick={() => setIsAddModalVisible(true)} style={{ marginRight: 8 }}>
+            Thêm rạp chiếu
+          </Button>
+          <Search
+            placeholder="Tìm kiếm rạp chiếu"
+            onSearch={handleSearch}
+            style={{ width: 300, border: '2px solid #d9d9d9', borderRadius: 4, marginTop: -8 }}
+          />
+        </div>
       </div>
       <Table columns={columns} dataSource={filteredData} />
+      <ThemRapChieu
+        isModalVisible={isAddModalVisible}
+        handleCancel={() => setIsAddModalVisible(false)}
+        refreshCinemaList={fetchCinemaList} // Pass the refresh function
+      />
       <Modal
         title="Chỉnh sửa thông tin rạp chiếu"
         visible={isEditModalVisible}

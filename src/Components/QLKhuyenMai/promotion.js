@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const promotionsFilePath = path.join(__dirname, 'public', 'promotions_with_full_info.json');
+const promotionsFilePath = path.resolve(__dirname, '../../../public/promotions_with_full_info.json');
 
 const readPromotionsFromFile = () => {
   const data = fs.readFileSync(promotionsFilePath, 'utf8');

@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal, Form, Input } from 'antd';
 import { useCinemaApi } from '../../services/cinemaService';
 
-const ThemRapChieu = ({ isModalVisible, handleCancel }) => {
+const ThemRapChieu = ({ isModalVisible, handleCancel, refreshCinemaList }) => {
   const [form] = Form.useForm();
   const { createCinema } = useCinemaApi();
 
@@ -17,6 +17,7 @@ const ThemRapChieu = ({ isModalVisible, handleCancel }) => {
         if (success) {
           form.resetFields();
           handleCancel();
+          refreshCinemaList(); // Call the refresh function
         }
       })
       .catch(info => {
