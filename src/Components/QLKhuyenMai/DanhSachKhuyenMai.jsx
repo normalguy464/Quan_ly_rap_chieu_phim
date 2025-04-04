@@ -9,6 +9,7 @@ const DanhSachKhuyenMai = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [selectedPromotion, setSelectedPromotion] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [form] = Form.useForm();
   const promotionService = usePromotionApi();
 
@@ -69,6 +70,28 @@ const DanhSachKhuyenMai = () => {
     setFilteredData(filtered);
   };
 
+  const handleAddPromotion = () => {
+    form.resetFields();
+    setIsAddModalVisible(true);
+  };
+
+  const handleAddModalCancel = () => {
+    setIsAddModalVisible(false);
+  };
+
+  const handleAddModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+      const success = await promotionService.createPromotion(values);
+      if (success) {
+        fetchPromotionList();
+        setIsAddModalVisible(false);
+      }
+    } catch (error) {
+      console.error('Error creating promotion:', error);
+    }
+  };
+
   useEffect(() => {
     fetchPromotionList();
   }, []);
@@ -115,11 +138,14 @@ const DanhSachKhuyenMai = () => {
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>Danh sách khuyến mãi</h1>
-        <Search
-          placeholder="Tìm kiếm khuyến mãi"
-          onSearch={handleSearch}
-          style={{ width: 300, border: '2px solid #d9d9d9', borderRadius: 4, marginTop: -8 }}
-        />
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Search
+            placeholder="Tìm kiếm khuyến mãi"
+            onSearch={handleSearch}
+            style={{ width: 300, border: '2px solid #d9d9d9', borderRadius: 4 }}
+          />
+          <Button type="primary" onClick={handleAddPromotion}>Thêm mới khuyến mãi</Button>
+        </div>
       </div>
       <Table columns={columns} dataSource={filteredData} />
       <Modal
@@ -127,6 +153,27 @@ const DanhSachKhuyenMai = () => {
         visible={isEditModalVisible}
         onCancel={handleEditModalCancel}
         onOk={handleEditModalOk}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item label="Tên" name="name" rules={[{ required: true, message: 'Vui lòng nhập tên' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Mô tả" name="description" rules={[{ required: true, message: 'Vui lòng nhập mô tả' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Ngày bắt đầu" name="start_date" rules={[{ required: true, message: 'Vui lòng nhập ngày bắt đầu' }]}>
+            <Input placeholder="dd/mm/yyyy" />
+          </Form.Item>
+          <Form.Item label="Ngày kết thúc" name="end_date" rules={[{ required: true, message: 'Vui lòng nhập ngày kết thúc' }]}>
+            <Input placeholder="dd/mm/yyyy" />
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal
+        title="Thêm mới khuyến mãi"
+        visible={isAddModalVisible}
+        onCancel={handleAddModalCancel}
+        onOk={handleAddModalOk}
       >
         <Form form={form} layout="vertical">
           <Form.Item label="Tên" name="name" rules={[{ required: true, message: 'Vui lòng nhập tên' }]}>

@@ -5,10 +5,12 @@ export const useGenreApi = () => {
 
     const getAllGenres = async () => {
         try {
+            console.log('Calling /genre/all API...');
             const res = await httpPrivate.get('/genre/all');
+            console.log('API Response:', res.data);
             return res.data.genres;
         } catch (error) {
-            console.log(error);
+            console.log('Error fetching genres:', error);
         }
     };
 

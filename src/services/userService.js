@@ -49,6 +49,7 @@ export const useUserApi = () => {
     const updateUserById = async (userId, body) => {
         try {
             const res = await httpPrivate.put(`/user/update/${userId}`, body);
+            console.log(res);
             if (res.status != 200) {
                 throw res.data;
             }
@@ -62,6 +63,7 @@ export const useUserApi = () => {
     const deleteUser = async (userId) => {
         try {
             const res = await httpPrivate.delete(`/user/delete/${userId}`);
+            console.log(res);
             if (res.status != 200) {
                 throw res.data;
             }

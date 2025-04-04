@@ -1,26 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Button, Table, Form, Input, DatePicker } from 'antd';
-import { useUserApi } from '../../services/userService'; // Import userService
-import dayjs from 'dayjs'; // Import dayjs for date handling
-
-const { Search } = Input;
+import { Button, Table, Input, message } from 'antd'; // Remove unused imports
+import { useUserApi } from '../../services/userService';
+import ThemKhachHang from './ThemKhachHang'; // Import ThemKhachHang component
 
 const DanhSachKhachHang = () => {
-  const [data, setData] = useState([]); 
-  const [filteredData, setFilteredData] = useState([]); 
-  const [selectedEmployee, setSelectedEmployee] = useState(null); 
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false); 
-  const [form] = Form.useForm();
-  const userService = useUserApi(); // Initialize userService
+  const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false); // State for Add Modal
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false); // State for Edit Modal
+  const [editingCustomer, setEditingCustomer] = useState(null); // State for the customer being edited
+  const userService = useUserApi();
 
   const fetchEmployeeList = async () => {
     try {
       const users = await userService.getAllUser();
-      if (Array.isArray(users)) { // Ensure users is an array
-        const customerUsers = users.filter(user => user.roles[0] === 'user'); // Filter users with role 'admin'
-        console.log(customerUsers); // Log the fetched users for debugging
+      if (Array.isArray(users)) {
+        const customerUsers = users.filter(user => user.roles[0] === 'user');
         setData(customerUsers);
-        setFilteredData(customerUsers); // Initialize filtered data with admin users
+        setFilteredData(customerUsers);
       } else {
         console.error('Error: users is not an array');
       }
@@ -29,58 +26,37 @@ const DanhSachKhachHang = () => {
     }
   };
 
-  const handleEditEmployee = (record) => {
-    setSelectedEmployee(record);
-    form.setFieldsValue({
-      ...record,
-      birthdate: record.birthdate ? dayjs(record.birthdate, 'YYYY-MM-DD') : null, // Ensure birthdate is a dayjs object
-    });
+  const handleAddCustomer = () => {
+    setIsAddModalVisible(true);
+  };
+
+  const handleAddModalCancel = () => {
+    setIsAddModalVisible(false);
+  };
+
+  const handleEditCustomer = (customer) => {
+    setEditingCustomer(customer);
     setIsEditModalVisible(true);
   };
 
   const handleEditModalCancel = () => {
     setIsEditModalVisible(false);
-    setSelectedEmployee(null);
+    setEditingCustomer(null);
   };
 
-  const handleEditModalOk = async () => {
-    try {
-      const values = await form.validateFields();
-      const formattedValues = {
-        ...values,
-        birthdate: values.birthdate ? values.birthdate.format('YYYY-MM-DD') : null, // Format birthdate before sending to API
-      };
-      const success = await userService.updateUserById(selectedEmployee.id, formattedValues);
-      if (success) {
-        fetchEmployeeList(); // Refresh employee list after editing
-        setIsEditModalVisible(false);
-        setSelectedEmployee(null);
-      }
-    } catch (error) {
-      console.error('Error updating user:', error);
-    }
-  };
-
-  const handleDeleteEmployee = async (id) => {
+  const handleDeleteCustomer = async (id) => {
     try {
       const success = await userService.deleteUser(id);
       if (success) {
-        fetchEmployeeList(); // Refresh employee list after deletion
+        message.success('Xóa khách hàng thành công!');
+        fetchEmployeeList(); // Refresh the list after deletion
+      } else {
+        message.error('Xóa khách hàng thất bại!');
       }
     } catch (error) {
-      console.error('Error deleting user:', error);
+      console.error('Error deleting customer:', error);
+      message.error('Xóa khách hàng thất bại!');
     }
-  };
-
-  const handleSearch = (value) => {
-    const searchValue = value.toLowerCase();
-    const filtered = data.filter((item) => {
-      return (
-        item.id.toString().includes(searchValue) ||
-        item.fullname.toLowerCase().includes(searchValue)
-      );
-    });
-    setFilteredData(filtered);
   };
 
   useEffect(() => {
@@ -100,13 +76,14 @@ const DanhSachKhachHang = () => {
     },
     {
       title: 'Full Name',
-      dataIndex: 'fullname',
-      key: 'fullname',
+      dataIndex: 'full_name',
+      key: 'full_name',
     },
     {
       title: 'Role',
-      dataIndex: 'role',
-      key: 'role',
+      dataIndex: 'roles',
+      key: 'roles',
+      render: (roles) => roles.join(', '),
     },
     {
       title: 'Address',
@@ -119,13 +96,12 @@ const DanhSachKhachHang = () => {
       key: 'phone_number',
     },
     {
-
       title: 'Action',
       key: 'action',
       render: (_, record) => (
-        <span>
-          <Button type="primary" style={{ marginRight: 8 }} onClick={() => handleEditEmployee(record)}>Cập nhật</Button>
-          <Button type="default" onClick={() => handleDeleteEmployee(record.id)}>Xóa</Button>
+        <span className='flex'>
+          <Button type="primary" style={{ marginRight: 8 }} onClick={() => handleEditCustomer(record)}>Cập nhật</Button>
+          <Button type="default" onClick={() => handleDeleteCustomer(record.id)}>Xóa</Button>
         </span>
       ),
     },
@@ -134,38 +110,36 @@ const DanhSachKhachHang = () => {
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h1>Danh sách nhân viên</h1>
-        <Search
-          placeholder="Tìm kiếm nhân viên"
-          onSearch={handleSearch}
-          style={{ width: 300, border: '2px solid #d9d9d9', borderRadius: 4}}
-        />
+        <h1>Danh sách khách hàng</h1>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Input.Search
+            placeholder="Tìm kiếm khách hàng"
+            onSearch={(value) => {
+              const searchValue = value.toLowerCase();
+              const filtered = data.filter((item) =>
+                item.id.toString().includes(searchValue) || item.full_name.toLowerCase().includes(searchValue)
+              );
+              setFilteredData(filtered);
+            }}
+            style={{ width: 300, border: '2px solid #d9d9d9', borderRadius: 4 }}
+          />
+          <Button type="primary" onClick={handleAddCustomer}>Thêm khách hàng</Button>
+        </div>
       </div>
-      <Table columns={columns} dataSource={filteredData} /> {/* Hiển thị bảng danh sách nhân viên */}
-      <Modal
-        title="Chỉnh sửa thông tin nhân viên"
-        visible={isEditModalVisible}
-        onCancel={handleEditModalCancel}
-        onOk={handleEditModalOk}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item label="Tên" name="fullname" rules={[{ required: true, message: 'Vui lòng nhập tên' }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item label="Ngày tháng năm sinh" name="birthdate" rules={[{ required: true, message: 'Vui lòng nhập ngày tháng năm sinh' }]}>
-            <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} />
-          </Form.Item>
-          <Form.Item label="Địa chỉ" name="address" rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item label="Số điện thoại" name="phone_number" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item label="Email" name="email" rules={[{ required: true, message: 'Vui lòng nhập email' }]}>
-            <Input />
-          </Form.Item>
-        </Form>
-      </Modal>
+      <Table columns={columns} dataSource={filteredData} />
+      <ThemKhachHang
+        isModalVisible={isAddModalVisible}
+        handleCancel={handleAddModalCancel}
+        onCustomerUpdated={fetchEmployeeList} // Pass callback to refresh list
+      />
+      {isEditModalVisible && (
+        <ThemKhachHang
+          isModalVisible={isEditModalVisible}
+          handleCancel={handleEditModalCancel}
+          customer={editingCustomer} // Pass the customer being edited
+          onCustomerUpdated={fetchEmployeeList} // Pass callback to refresh list
+        />
+      )}
     </>
   );
 };

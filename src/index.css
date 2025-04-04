@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  color: #5B5C63;
+}
+
+.custom-search-bar .ant-input-outline:hover {
+  border-color: #3f3f46 !important;
+}

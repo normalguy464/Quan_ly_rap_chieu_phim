@@ -1,10 +1,28 @@
-import React from 'react';
-import { Modal, Form, Input } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Modal, Form, Input, Select } from 'antd';
 import { useFilmApi } from '../../services/filmService';
+import { useGenreApi } from '../../services/genreService';
 
 const ThemPhim = ({ isModalVisible, handleCancel }) => {
   const [form] = Form.useForm();
   const { createFilm } = useFilmApi();
+  const { getAllGenres } = useGenreApi();
+  const [genres, setGenres] = useState([]);
+
+  useEffect(() => {
+    console.log('useEffect triggered');
+    const fetchGenres = async () => {
+      try {
+        console.log('Fetching genres...');
+        const genreList = await getAllGenres();
+        console.log('Fetched genres:', genreList);
+        setGenres(genreList || []);
+      } catch (error) {
+        console.error('Error fetching genres:', error);
+      }
+    };
+    fetchGenres();
+  }, [getAllGenres]);
 
   const onOk = () => {
     form.validateFields()
@@ -28,6 +46,8 @@ const ThemPhim = ({ isModalVisible, handleCancel }) => {
       });
   };
 
+  console.log('ThemPhim component rendered, isModalVisible:', isModalVisible);
+
   return (
     <Modal title="Thêm phim mới" visible={isModalVisible} onOk={onOk} onCancel={handleCancel}>
       <Form form={form} layout="vertical">
@@ -46,8 +66,18 @@ const ThemPhim = ({ isModalVisible, handleCancel }) => {
         <Form.Item label="Tác giả" name="author" rules={[{ required: true, message: 'Vui lòng nhập tên tác giả' }]}>
           <Input />
         </Form.Item>
-        <Form.Item label="Thể loại" name="genre" rules={[{ required: true, message: 'Vui lòng nhập thể loại phim' }]}>
-          <Input />
+        <Form.Item
+          label="Thể loại"
+          name="genre"
+          rules={[{ required: true, message: 'Vui lòng chọn thể loại phim' }]}
+        >
+          <Select placeholder="Chọn thể loại" allowClear>
+            {genres.map(genre => (
+              <Select.Option key={genre.id} value={genre.id}>
+                {genre.name}
+              </Select.Option>
+            ))}
+          </Select>
         </Form.Item>
         <Form.Item label="Đường dẫn poster" name="posterPath" rules={[{ required: true, message: 'Vui lòng nhập đường dẫn poster' }]}>
           <Input />

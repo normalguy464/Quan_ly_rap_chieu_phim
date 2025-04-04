@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Button, Table, Form, Input, DatePicker, Switch } from 'antd';
+import { Modal, Button, Table, Form, Input, DatePicker, Switch, Select } from 'antd'; // Added Select
 import { useFilmApi } from '../../services/filmService';
+import { useGenreApi } from '../../services/genreService';
+
+import moment from 'moment';
 
 const { Search } = Input;
 
 const DanhSachPhim = () => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const [genres, setGenres] = useState([]); // State for genres
   const [selectedFilm, setSelectedFilm] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false); // State for Add Modal
   const [form] = Form.useForm();
   const filmService = useFilmApi();
+  const genreService = useGenreApi(); // Initialize genre service
 
   const fetchFilmList = async () => {
     try {
@@ -19,6 +25,16 @@ const DanhSachPhim = () => {
       setFilteredData(films);
     } catch (error) {
       console.error('Error fetching films:', error);
+    }
+  };
+
+  const fetchGenres = async () => {
+    try {
+      const genresData = await genreService.getAllGenres(); // Fetch genres from API
+      setGenres(genresData);
+      console.log('Fetched genres:', genresData); // Log fetched genres
+    } catch (error) {
+      console.error('Error fetching genres:', error);
     }
   };
 
@@ -77,8 +93,35 @@ const DanhSachPhim = () => {
     setFilteredData(filtered);
   };
 
+  const handleAddFilm = () => {
+    form.resetFields(); // Reset form fields
+    setIsAddModalVisible(true);
+  };
+
+  const handleAddModalCancel = () => {
+    setIsAddModalVisible(false);
+  };
+
+  const handleAddModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+      const formattedValues = {
+        ...values,
+        release_date: values.release_date ? values.release_date.format('YYYY-MM-DD') : null, // Format release date
+      };
+      const success = await filmService.createFilm(formattedValues); // Call API to create film
+      if (success) {
+        fetchFilmList(); // Refresh film list after adding
+        setIsAddModalVisible(false);
+      }
+    } catch (error) {
+      console.error('Error adding film:', error);
+    }
+  };
+
   useEffect(() => {
     fetchFilmList();
+    fetchGenres(); // Fetch genres on component mount
   }, []);
 
   const columns = [
@@ -116,6 +159,7 @@ const DanhSachPhim = () => {
       title: 'Thể loại',
       dataIndex: 'genre',
       key: 'genre',
+      
     },
     {
       title: 'Hoạt động',
@@ -127,7 +171,7 @@ const DanhSachPhim = () => {
       title: 'Action',
       key: 'action',
       render: (_, record) => (
-        <span>
+        <span className='flex gap-2'>
           <Button type="primary" style={{ marginRight: 8 }} onClick={() => handleEditFilm(record)}>Cập nhật</Button>
           <Button type="default" onClick={() => handleDeleteFilm(record.id)}>Xóa</Button>
         </span>
@@ -139,11 +183,14 @@ const DanhSachPhim = () => {
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>Danh sách phim</h1>
+        <div style={{ display: 'flex', gap: 8 }}>
         <Search
-          placeholder="Tìm kiếm phim"
-          onSearch={handleSearch}
-          style={{ width: 300, border: '2px solid #d9d9d9', borderRadius: 4, marginTop: -8 }}
-        />
+            placeholder="Tìm kiếm phim"
+            onSearch={handleSearch}
+            style={{ width: 300, border: '2px solid #d9d9d9', borderRadius: 4 }}
+          />
+          <Button type="primary" onClick={handleAddFilm}>Thêm phim</Button>
+        </div>
       </div>
       <Table columns={columns} dataSource={filteredData} />
       <Modal
@@ -168,8 +215,50 @@ const DanhSachPhim = () => {
           <Form.Item label="Tác giả" name="author" rules={[{ required: true, message: 'Vui lòng nhập tác giả' }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="Thể loại" name="genre" rules={[{ required: true, message: 'Vui lòng nhập thể loại' }]}>
+          <Form.Item label="Thể loại" name="genre" rules={[{ required: true, message: 'Vui lòng chọn thể loại' }]}>
+            <Select>
+              {genres.map((genre) => (
+                <Select.Option key={genre.id} value={genre.name}>
+                  {genre.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item label="Hoạt động" name="is_active" valuePropName="checked">
+            <Switch />
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal
+        title="Thêm phim"
+        visible={isAddModalVisible}
+        onCancel={handleAddModalCancel}
+        onOk={handleAddModalOk}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item label="Tên phim" name="title" rules={[{ required: true, message: 'Vui lòng nhập tên phim' }]}>
             <Input />
+          </Form.Item>
+          <Form.Item label="Mô tả" name="description" rules={[{ required: true, message: 'Vui lòng nhập mô tả' }]}>
+            <Input.TextArea />
+          </Form.Item>
+          <Form.Item label="Thời lượng (phút)" name="duration" rules={[{ required: true, message: 'Vui lòng nhập thời lượng' }]}>
+            <Input type="number" />
+          </Form.Item>
+          <Form.Item label="Ngày phát hành" name="release_date" rules={[{ required: true, message: 'Vui lòng chọn ngày phát hành' }]}>
+            <DatePicker />
+          </Form.Item>
+          <Form.Item label="Tác giả" name="author" rules={[{ required: true, message: 'Vui lòng nhập tác giả' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Thể loại" name="genre" rules={[{ required: true, message: 'Vui lòng chọn thể loại' }]}>
+            <Select>
+              {genres.map((genre) => (
+                <Select.Option key={genre.id} value={genre.name}>
+                  {genre.name}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item label="Hoạt động" name="is_active" valuePropName="checked">
             <Switch />

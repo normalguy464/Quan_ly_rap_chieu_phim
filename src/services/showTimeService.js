@@ -6,6 +6,7 @@ export const useShowTimeApi = () => {
     const getAllShowtimes = async () => {
         try {
             const res = await httpPrivate.get('/showtimes/all');
+            console.log(res.data);
             return res.data.showtimes;
         } catch (error) {
             console.log(error);

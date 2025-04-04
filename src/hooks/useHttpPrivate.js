@@ -29,7 +29,7 @@ const useHttpPrivate = () => {
                 if (statusCode === 401 || statusCode === 403) {
                     // handle logout for unauthorized or forbidden responses
                     // dispatch(logOut());
-                    navigate('/login');
+                    // navigate('/login');
                 }
                 return Promise.reject(error);
             }

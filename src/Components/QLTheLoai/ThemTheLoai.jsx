@@ -9,7 +9,11 @@ const ThemTheLoai = ({ isModalVisible, handleCancel }) => {
   const onOk = () => {
     form.validateFields()
       .then(async (values) => {
-        const success = await createGenre({ name: values.name });
+        const success = await createGenre({
+          name: values.name,
+          description: values.description,
+          id: values.id,
+        });
         if (success) {
           form.resetFields();
           handleCancel();
@@ -26,6 +30,10 @@ const ThemTheLoai = ({ isModalVisible, handleCancel }) => {
         <Form.Item label="Tên thể loại" name="name" rules={[{ required: true, message: 'Vui lòng nhập tên thể loại' }]}>
           <Input />
         </Form.Item>
+        <Form.Item label="Mô tả" name="description" rules={[{ required: true, message: 'Vui lòng nhập mô tả' }]}>
+          <Input />
+        </Form.Item>
+        
       </Form>
     </Modal>
   );

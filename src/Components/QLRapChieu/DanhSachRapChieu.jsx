@@ -110,7 +110,7 @@ const DanhSachRapChieu = () => {
       key: 'action',
       render: (_, record) => (
         <span>
-          <Button type="default" style={{ marginRight: 8 }} onClick={() => fetchRooms(record.id)}>Xem danh sách phòng chiếu</Button>
+          {/* <Button type="default" style={{ marginRight: 8 }} onClick={() => fetchRooms(record.id)}>Xem danh sách phòng chiếu</Button> */}
           <Button type="primary" style={{ marginRight: 8 }} onClick={() => handleEditCinema(record)}>Cập nhật</Button>
           <Button type="default" onClick={() => handleDeleteCinema(record.id)}>Xóa</Button>
         </span>
@@ -122,15 +122,13 @@ const DanhSachRapChieu = () => {
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>Danh sách rạp chiếu</h1>
-        <div>
-          <Button type="primary" onClick={() => setIsAddModalVisible(true)} style={{ marginRight: 8 }}>
-            Thêm rạp chiếu
-          </Button>
+        <div style={{ display: 'flex', gap: 8 }}>
           <Search
             placeholder="Tìm kiếm rạp chiếu"
             onSearch={handleSearch}
-            style={{ width: 300, border: '2px solid #d9d9d9', borderRadius: 4, marginTop: -8 }}
+            style={{ width: 300, border: '2px solid #d9d9d9', borderRadius: 4 }}
           />
+          <Button type="primary" onClick={() => setIsAddModalVisible(true)}>Thêm rạp chiếu</Button>
         </div>
       </div>
       <Table columns={columns} dataSource={filteredData} />

@@ -22,6 +22,8 @@ import ThemSuatChieu from './QLSuatChieu/ThemSuatChieu';
 import DanhSachSuatChieu from './QLSuatChieu/DanhSachSuatChieu';
 import DanhSachPhim from './QLPhim/DanhSachPhim';
 import ThemPhim from './QLPhim/ThemPhim'; // Import ThemPhim component
+import MenuSlider from './MenuSlider';
+import { Outlet } from 'react-router-dom';
 const { Header, Content, Footer, Sider } = Layout;
 
 function getItem(label, key, icon, children, onClick) {
@@ -202,9 +204,15 @@ const App = () => {
       </Header>
 
       <Layout style={{ marginTop: 64 }}> {/* Thêm khoảng cách để tránh header che khuất nội dung */}
-        <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)} width={270}>
+        <Sider
+          collapsible
+          collapsed={collapsed}
+          onCollapse={(value) => setCollapsed(value)}
+          width={270}
+          style={{ background: '#001529' }} // Đổi màu nền giống màu header
+        >
           <div className="demo-logo-vertical" />
-          <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" items={items} />
+          <MenuSlider />
         </Sider>
         <Layout>
           <Content
@@ -222,21 +230,21 @@ const App = () => {
                 borderRadius: borderRadiusLG,
               }}
             >
-              <ThemNhanVien isModalVisible={isEmployeeModalVisible} handleCancel={handleEmployeeCancel}/>
+              {/* <ThemNhanVien isModalVisible={isEmployeeModalVisible} handleCancel={handleEmployeeCancel}/>
               <ThemKhachHang isModalVisible={isCustomerModalVisible} handleCancel={handleCustomerCancel}/>
               <ThemRapChieu isModalVisible={isCinemaModalVisible} handleCancel={handleCinemaCancel}/>
               <ThemKhuyenMai isModalVisible={isPromotionModalVisible} handleCancel={handlePromotionCancel}/>
               <ThemTheLoai isModalVisible={isGenreModalVisible} handleCancel={handleGenreCancel}/>
               <ThemSuatChieu isModalVisible={isShowtimeModalVisible} handleCancel={handleShowtimeCancel} />
-              <ThemPhim isModalVisible={isMovieModalVisible} handleCancel={handleMovieCancel} /> {/* Add ThemPhim modal */}
-              {activeView === 'employees' && <DanhSachNhanVien />}
+              <ThemPhim isModalVisible={isMovieModalVisible} handleCancel={handleMovieCancel} />  */}
+              {/* {activeView === 'employees' && <DanhSachNhanVien />}
               {activeView === 'customers' && <DanhSachKhachHang />}
               {activeView === 'cinemas' && <DanhSachRapChieu />}
               {activeView === 'promotions' && <DanhSachKhuyenMai />}
               {activeView === 'genres' && <DanhSachTheLoai />}
               {activeView === 'showtimes' && <DanhSachSuatChieu />}
-              {activeView === 'films' && <DanhSachPhim />} {/* Hiển thị danh sách phim */}
-              
+              {activeView === 'films' && <DanhSachPhim />}  */}
+              <Outlet/>
             </div>
           </Content>
           <Footer

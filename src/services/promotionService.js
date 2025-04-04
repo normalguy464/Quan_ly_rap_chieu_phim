@@ -6,6 +6,7 @@ export const usePromotionApi = () => {
     const getAllPromotion = async () => {
         try {
             const res = await httpPrivate.get('/promotion/all');
+            console.log(res.data);
             return res.data.promotions;
         } catch (error) {
             console.log(error);
