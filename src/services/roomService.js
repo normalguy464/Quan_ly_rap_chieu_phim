@@ -5,7 +5,7 @@ export const useRoomApi = () => {
 
     const getAllRooms = async () => {
         try {
-            const res = await httpPrivate.get('/room/all');
+            const res = await httpPrivate.get('/rooms');
             return res.data.rooms;
         } catch (error) {
             console.error('Error fetching all rooms:', error);
@@ -14,7 +14,7 @@ export const useRoomApi = () => {
 
     const getRoomsByCinemaId = async (cinemaId) => {
         try {
-            const res = await httpPrivate.get(`/room/cinema/${cinemaId}`);
+            const res = await httpPrivate.get(`/rooms/cinema/${cinemaId}`);
             return res.data.rooms;
         } catch (error) {
             console.error(`Error fetching rooms for cinema ID ${cinemaId}:`, error);
@@ -23,7 +23,7 @@ export const useRoomApi = () => {
 
     const getRoomById = async (roomId) => {
         try {
-            const res = await httpPrivate.get(`/room/${roomId}`);
+            const res = await httpPrivate.get(`/rooms/${roomId}`);
             return res.data.room;
         } catch (error) {
             console.error(`Error fetching room with ID ${roomId}:`, error);
@@ -32,7 +32,7 @@ export const useRoomApi = () => {
 
     const createRoom = async (cinemaId, body) => {
         try {
-            const res = await httpPrivate.post(`/room/create/${cinemaId}`, body);
+            const res = await httpPrivate.post(`/rooms/create/${cinemaId}`, body);
             if (res.status < 200 || res.status >= 300) {
                 throw new Error(`API Error: ${res.status} - ${res.statusText}`);
             }
@@ -45,7 +45,7 @@ export const useRoomApi = () => {
 
     const updateRoomById = async (roomId, body) => {
         try {
-            const res = await httpPrivate.put(`/room/update/${roomId}`, body);
+            const res = await httpPrivate.put(`/rooms/update/${roomId}`, body);
             if (res.status !== 200) {
                 throw new Error(`API Error: ${res.status} - ${res.statusText}`);
             }
@@ -58,7 +58,7 @@ export const useRoomApi = () => {
 
     const deleteRoom = async (roomId) => {
         try {
-            const res = await httpPrivate.delete(`/room/delete/${roomId}`);
+            const res = await httpPrivate.delete(`/rooms/delete/${roomId}`);
             if (res.status !== 200) {
                 throw new Error(`API Error: ${res.status} - ${res.statusText}`);
             }
@@ -71,7 +71,7 @@ export const useRoomApi = () => {
 
     const deleteManyRooms = async (body) => {
         try {
-            const res = await httpPrivate.delete('/room/delete_many', { data: body });
+            const res = await httpPrivate.delete('/rooms/delete_many', { data: body });
             if (res.status !== 200) {
                 throw new Error(`API Error: ${res.status} - ${res.statusText}`);
             }
@@ -84,7 +84,7 @@ export const useRoomApi = () => {
 
     const deleteAllRooms = async () => {
         try {
-            const res = await httpPrivate.delete('/room/delete-all');
+            const res = await httpPrivate.delete('/rooms/delete-all');
             if (res.status !== 200) {
                 throw new Error(`API Error: ${res.status} - ${res.statusText}`);
             }
