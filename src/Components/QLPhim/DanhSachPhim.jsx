@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Modal, Button, Table, Form, Input, DatePicker, Switch, Select } from 'antd'; // Added Select
 import { useFilmApi } from '../../services/filmService';
 import { useGenreApi } from '../../services/genreService';
-
+import BackToDashboardButton from '../BackToDashBoard';
 import moment from 'moment';
 
 const { Search } = Input;
@@ -181,6 +181,7 @@ const DanhSachPhim = () => {
 
   return (
     <>
+      <BackToDashboardButton />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>Danh sách phim</h1>
         <div style={{ display: 'flex', gap: 8 }}>

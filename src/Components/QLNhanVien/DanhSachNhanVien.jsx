@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Table, Input, message } from 'antd'; // Adjust imports
 import { useUserApi } from '../../services/userService';
 import ThemNhanVien from './ThemNhanVien'; // Import ThemNhanVien component
-
+import BackToDashboardButton from '../BackToDashBoard'; // Import BackToDashboardButton component
 const DanhSachNhanVien = () => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -109,6 +109,7 @@ const DanhSachNhanVien = () => {
 
   return (
     <>
+      <BackToDashboardButton />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>Danh sách nhân viên</h1>
         <div style={{ display: 'flex', gap: 8 }}>

@@ -7,12 +7,18 @@ import DanhSachRapChieu from "../QLRapChieu/DanhSachRapChieu";
 import DanhSachSuatChieu from "../QLSuatChieu/DanhSachSuatChieu";
 import DanhSachTheLoai from "../QLTheLoai/DanhSachTheLoai";
 import DanhSachKhuyenMai from "../QLKhuyenMai/DanhSachKhuyenMai";
+import DanhSachPhongChieu from "../QLPhongChieu/DanhSachPhongChieu";
+import Dashboard from "../DashBoard/Dashboard";
 
 export const routes = [
     {
         path: '/',
         element: <App />,
         children:[
+            {
+                path: '/dashboard',
+                element: <Dashboard/>, 
+            },
             {
                 path: '/employee',
                 element: < DanhSachNhanVien/>, 
@@ -28,6 +34,10 @@ export const routes = [
             {
                 path: '/cinema',
                 element: <DanhSachRapChieu />,
+            },
+            {
+                path: '/room',
+                element: <DanhSachPhongChieu />,
             },
             {
                 path: '/showtime',

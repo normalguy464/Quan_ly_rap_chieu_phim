@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Table, Form, Input } from 'antd';
 import { useCinemaApi } from '../../services/cinemaService';
+import { useRoomApi } from '../../services/roomService'; // Import roomService
 import ThemRapChieu from './ThemRapChieu';
-
+import BackToDashboardButton from '../BackToDashBoard';
 const { Search } = Input;
 
 const DanhSachRapChieu = () => {
@@ -12,14 +13,14 @@ const DanhSachRapChieu = () => {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isRoomModalVisible, setIsRoomModalVisible] = useState(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
-  const [rooms, setRooms] = useState([]);
+  const [rooms, setRooms] = useState([]); // State để lưu danh sách phòng chiếu
   const [form] = Form.useForm();
   const cinemaService = useCinemaApi();
+  const roomService = useRoomApi(); // Sử dụng roomService
 
   const fetchCinemaList = async () => {
     try {
       const cinemas = await cinemaService.getAllCinema();
-      console.log(cinemas);
       setData(cinemas);
       setFilteredData(cinemas);
     } catch (error) {
@@ -29,9 +30,9 @@ const DanhSachRapChieu = () => {
 
   const fetchRooms = async (cinemaId) => {
     try {
-      const roomsData = await cinemaService.getCinemaById(cinemaId);
-      setRooms(roomsData.rooms || []);
-      setIsRoomModalVisible(true);
+      const roomsData = await roomService.getRoomsByCinemaId(cinemaId); // Lấy danh sách phòng từ API
+      setRooms(roomsData || []);
+      setIsRoomModalVisible(true); // Hiển thị modal danh sách phòng chiếu
     } catch (error) {
       console.error('Error fetching rooms:', error);
     }
@@ -110,9 +111,23 @@ const DanhSachRapChieu = () => {
       key: 'action',
       render: (_, record) => (
         <span>
-          {/* <Button type="default" style={{ marginRight: 8 }} onClick={() => fetchRooms(record.id)}>Xem danh sách phòng chiếu</Button> */}
-          <Button type="primary" style={{ marginRight: 8 }} onClick={() => handleEditCinema(record)}>Cập nhật</Button>
-          <Button type="default" onClick={() => handleDeleteCinema(record.id)}>Xóa</Button>
+          <Button
+            type="default"
+            style={{ marginRight: 8 }}
+            onClick={() => fetchRooms(record.id)} // Gọi hàm fetchRooms khi nhấn nút
+          >
+            Xem danh sách phòng chiếu
+          </Button>
+          <Button
+            type="primary"
+            style={{ marginRight: 8 }}
+            onClick={() => handleEditCinema(record)}
+          >
+            Cập nhật
+          </Button>
+          <Button type="default" onClick={() => handleDeleteCinema(record.id)}>
+            Xóa
+          </Button>
         </span>
       ),
     },
@@ -120,6 +135,7 @@ const DanhSachRapChieu = () => {
 
   return (
     <>
+      <BackToDashboardButton />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>Danh sách rạp chiếu</h1>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -162,10 +178,10 @@ const DanhSachRapChieu = () => {
           columns={[
             { title: 'ID', dataIndex: 'id', key: 'id' },
             { title: 'Tên phòng chiếu', dataIndex: 'name', key: 'name' },
-            { title: 'Loại phòng', dataIndex: 'type', key: 'type' },
             { title: 'Số ghế', dataIndex: 'seats', key: 'seats' },
           ]}
           dataSource={rooms}
+          rowKey="id"
         />
       </Modal>
     </>

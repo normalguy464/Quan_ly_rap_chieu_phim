@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Table, Form, Input } from 'antd';
 import { usePromotionApi } from '../../services/promotionService'; // Import promotionService
-
+import BackToDashboardButton from '../BackToDashBoard';
 const { Search } = Input;
 
 const DanhSachKhuyenMai = () => {
@@ -118,9 +118,9 @@ const DanhSachKhuyenMai = () => {
       key: 'start_date',
     },
     {
-      title: 'End Date',
-      dataIndex: 'end_date',
-      key: 'end_date',
+      title: 'Duration (days)',
+      dataIndex: 'duration',
+      key: 'duration',
     },
     {
       title: 'Action',
@@ -136,6 +136,7 @@ const DanhSachKhuyenMai = () => {
 
   return (
     <>
+      <BackToDashboardButton />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>Danh sách khuyến mãi</h1>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -164,8 +165,8 @@ const DanhSachKhuyenMai = () => {
           <Form.Item label="Ngày bắt đầu" name="start_date" rules={[{ required: true, message: 'Vui lòng nhập ngày bắt đầu' }]}>
             <Input placeholder="dd/mm/yyyy" />
           </Form.Item>
-          <Form.Item label="Ngày kết thúc" name="end_date" rules={[{ required: true, message: 'Vui lòng nhập ngày kết thúc' }]}>
-            <Input placeholder="dd/mm/yyyy" />
+          <Form.Item label="Thời gian (ngày)" name="duration" rules={[{ required: true, message: 'Vui lòng nhập thời gian' }]}>
+            <Input type="number" placeholder="Nhập số ngày" />
           </Form.Item>
         </Form>
       </Modal>
@@ -185,8 +186,8 @@ const DanhSachKhuyenMai = () => {
           <Form.Item label="Ngày bắt đầu" name="start_date" rules={[{ required: true, message: 'Vui lòng nhập ngày bắt đầu' }]}>
             <Input placeholder="dd/mm/yyyy" />
           </Form.Item>
-          <Form.Item label="Ngày kết thúc" name="end_date" rules={[{ required: true, message: 'Vui lòng nhập ngày kết thúc' }]}>
-            <Input placeholder="dd/mm/yyyy" />
+          <Form.Item label="Thời gian (ngày)" name="duration" rules={[{ required: true, message: 'Vui lòng nhập thời gian' }]}>
+            <Input type="number" placeholder="Nhập số ngày" />
           </Form.Item>
         </Form>
       </Modal>

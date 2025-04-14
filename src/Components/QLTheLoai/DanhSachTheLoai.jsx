@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Table, Form, Input, Modal as AntdModal, message } from 'antd';
 import { useGenreApi } from '../../services/genreService';
-
+import BackToDashboardButton from '../BackToDashBoard';
 const { Search } = Input;
 
 const DanhSachTheLoai = () => {
@@ -150,6 +150,7 @@ const DanhSachTheLoai = () => {
 
   return (
     <>
+      <BackToDashboardButton />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>Danh sách thể loại</h1>
         <div style={{ display: 'flex', gap: 8 }}>
