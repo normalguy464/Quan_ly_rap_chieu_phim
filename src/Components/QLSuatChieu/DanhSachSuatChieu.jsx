@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Button, Table, Form, Input, DatePicker, TimePicker, Select } from 'antd';
+import { Modal, Button, Table, Form, Input, DatePicker } from 'antd';
 import { useShowTimeApi } from '../../services/showTimeService';
 import moment from 'moment';
-
+import BackToDashboardButton from '../BackToDashBoard';
 const { Search } = Input;
 
 const DanhSachSuatChieu = () => {
@@ -28,8 +28,7 @@ const DanhSachSuatChieu = () => {
     setSelectedShowtime(record);
     form.setFieldsValue({
       ...record,
-      date: record.date ? moment(record.date) : null,
-      time: record.time ? moment(record.time, 'HH:mm') : null,
+      datetime: record.datetime ? moment(record.datetime) : null,
     });
     setIsEditModalVisible(true);
   };
@@ -44,8 +43,7 @@ const DanhSachSuatChieu = () => {
       const values = await form.validateFields();
       const success = await showTimeService.updateShowtimeById(selectedShowtime.id, {
         ...values,
-        date: values.date.format('YYYY-MM-DD'),
-        time: values.time.format('HH:mm'),
+        datetime: values.datetime.format('YYYY-MM-DD HH:mm'),
       });
       if (success) {
         fetchShowtimes();
@@ -73,7 +71,6 @@ const DanhSachSuatChieu = () => {
     const filtered = data.filter((item) => {
       return (
         item.film.toLowerCase().includes(searchValue) ||
-        item.cinema.toLowerCase().includes(searchValue) ||
         item.room.toLowerCase().includes(searchValue)
       );
     });
@@ -94,8 +91,7 @@ const DanhSachSuatChieu = () => {
       const values = await form.validateFields();
       const formattedValues = {
         ...values,
-        date: values.date.format('YYYY-MM-DD'),
-        time: values.time.format('HH:mm'),
+        datetime: values.datetime.format('YYYY-MM-DD HH:mm'),
       };
       const success = await showTimeService.createShowtime(formattedValues);
       if (success) {
@@ -112,10 +108,8 @@ const DanhSachSuatChieu = () => {
   }, []);
 
   const columns = [
-    { title: 'Ngày', dataIndex: 'date', key: 'date' },
-    { title: 'Giờ', dataIndex: 'time', key: 'time' },
+    { title: 'Ngày giờ', dataIndex: 'datetime', key: 'datetime' },
     { title: 'Phim', dataIndex: 'film', key: 'film' },
-    { title: 'Rạp chiếu', dataIndex: 'cinema', key: 'cinema' },
     { title: 'Phòng chiếu', dataIndex: 'room', key: 'room' },
     {
       title: 'Action',
@@ -131,6 +125,7 @@ const DanhSachSuatChieu = () => {
 
   return (
     <>
+      <BackToDashboardButton />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>Danh sách suất chiếu</h1>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -150,16 +145,10 @@ const DanhSachSuatChieu = () => {
         onOk={handleEditModalOk}
       >
         <Form form={form} layout="vertical">
-          <Form.Item label="Ngày" name="date" rules={[{ required: true, message: 'Vui lòng chọn ngày' }]}>
-            <DatePicker />
-          </Form.Item>
-          <Form.Item label="Giờ" name="time" rules={[{ required: true, message: 'Vui lòng chọn giờ' }]}>
-            <TimePicker format="HH:mm" />
+          <Form.Item label="Ngày giờ" name="datetime" rules={[{ required: true, message: 'Vui lòng chọn ngày giờ' }]}>
+            <DatePicker showTime format="YYYY-MM-DD HH:mm" />
           </Form.Item>
           <Form.Item label="Phim" name="film" rules={[{ required: true, message: 'Vui lòng nhập tên phim' }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item label="Rạp chiếu" name="cinema" rules={[{ required: true, message: 'Vui lòng nhập tên rạp chiếu' }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Phòng chiếu" name="room" rules={[{ required: true, message: 'Vui lòng nhập phòng chiếu' }]}>
@@ -174,16 +163,10 @@ const DanhSachSuatChieu = () => {
         onOk={handleAddModalOk}
       >
         <Form form={form} layout="vertical">
-          <Form.Item label="Ngày" name="date" rules={[{ required: true, message: 'Vui lòng chọn ngày' }]}>
-            <DatePicker />
-          </Form.Item>
-          <Form.Item label="Giờ" name="time" rules={[{ required: true, message: 'Vui lòng chọn giờ' }]}>
-            <TimePicker format="HH:mm" />
+          <Form.Item label="Ngày giờ" name="datetime" rules={[{ required: true, message: 'Vui lòng chọn ngày giờ' }]}>
+            <DatePicker showTime format="YYYY-MM-DD HH:mm" />
           </Form.Item>
           <Form.Item label="Phim" name="film" rules={[{ required: true, message: 'Vui lòng nhập tên phim' }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item label="Rạp chiếu" name="cinema" rules={[{ required: true, message: 'Vui lòng nhập tên rạp chiếu' }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Phòng chiếu" name="room" rules={[{ required: true, message: 'Vui lòng nhập phòng chiếu' }]}>

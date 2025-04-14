@@ -12,7 +12,7 @@ const ThemKhuyenMai = ({ isModalVisible, handleCancel }) => {
         const success = await createPromotion({
           description: values.description,
           start_date: values.start_date,
-          end_date: values.end_date
+          duration: values.duration,
         });
         if (success) {
           form.resetFields();
@@ -33,8 +33,8 @@ const ThemKhuyenMai = ({ isModalVisible, handleCancel }) => {
         <Form.Item label="Ngày bắt đầu" name="start_date" rules={[{ required: true, message: 'Vui lòng nhập ngày bắt đầu' }]}>
           <Input placeholder="dd/mm/yyyy" />
         </Form.Item>
-        <Form.Item label="Ngày kết thúc" name="end_date" rules={[{ required: true, message: 'Vui lòng nhập ngày kết thúc' }]}>
-          <Input placeholder="dd/mm/yyyy" />
+        <Form.Item label="Thời gian (ngày)" name="duration" rules={[{ required: true, message: 'Vui lòng nhập thời gian' }]}>
+          <Input type="number" placeholder="Nhập số ngày" />
         </Form.Item>
       </Form>
     </Modal>
