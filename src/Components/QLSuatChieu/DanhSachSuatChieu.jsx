@@ -17,6 +17,7 @@ const DanhSachSuatChieu = () => {
   const fetchShowtimes = async () => {
     try {
       const showtimes = await showTimeService.getAllShowtimes();
+      console.log('Fetched showtimes:', showtimes);
       setData(showtimes);
       setFilteredData(showtimes);
     } catch (error) {
@@ -28,7 +29,9 @@ const DanhSachSuatChieu = () => {
     setSelectedShowtime(record);
     form.setFieldsValue({
       ...record,
-      datetime: record.datetime ? moment(record.datetime) : null,
+      start_time: record.start_time ? moment(record.start_time) : null,
+      film: record.film?.title, // Set film title
+      room: record.room?.name, // Set room name
     });
     setIsEditModalVisible(true);
   };
@@ -43,7 +46,7 @@ const DanhSachSuatChieu = () => {
       const values = await form.validateFields();
       const success = await showTimeService.updateShowtimeById(selectedShowtime.id, {
         ...values,
-        datetime: values.datetime.format('YYYY-MM-DD HH:mm'),
+        start_time: values.start_time.format('YYYY-MM-DD HH:mm'),
       });
       if (success) {
         fetchShowtimes();
@@ -70,8 +73,8 @@ const DanhSachSuatChieu = () => {
     const searchValue = value.toLowerCase();
     const filtered = data.filter((item) => {
       return (
-        item.film.toLowerCase().includes(searchValue) ||
-        item.room.toLowerCase().includes(searchValue)
+        item.film.title.toLowerCase().includes(searchValue) ||
+        item.room.name.toLowerCase().includes(searchValue)
       );
     });
     setFilteredData(filtered);
@@ -91,7 +94,7 @@ const DanhSachSuatChieu = () => {
       const values = await form.validateFields();
       const formattedValues = {
         ...values,
-        datetime: values.datetime.format('YYYY-MM-DD HH:mm'),
+        start_time: values.start_time.format('YYYY-MM-DD HH:mm'),
       };
       const success = await showTimeService.createShowtime(formattedValues);
       if (success) {
@@ -108,9 +111,10 @@ const DanhSachSuatChieu = () => {
   }, []);
 
   const columns = [
-    { title: 'Ngày giờ', dataIndex: 'datetime', key: 'datetime' },
-    { title: 'Phim', dataIndex: 'film', key: 'film' },
-    { title: 'Phòng chiếu', dataIndex: 'room', key: 'room' },
+    { title: 'Ngày giờ', dataIndex: 'start_time', key: 'start_time' },
+    { title: 'Phim', dataIndex: ['film', 'title'], key: 'film' }, // Display film title
+    { title: 'Phòng chiếu', dataIndex: ['room', 'name'], key: 'room' }, // Display room name
+    { title: 'Rạp', dataIndex: ['room', 'cinema', 'name'], key: 'cinema' }, // Display cinema name
     {
       title: 'Action',
       key: 'action',
@@ -145,7 +149,7 @@ const DanhSachSuatChieu = () => {
         onOk={handleEditModalOk}
       >
         <Form form={form} layout="vertical">
-          <Form.Item label="Ngày giờ" name="datetime" rules={[{ required: true, message: 'Vui lòng chọn ngày giờ' }]}>
+          <Form.Item label="Ngày giờ" name="start_time" rules={[{ required: true, message: 'Vui lòng chọn ngày giờ' }]}>
             <DatePicker showTime format="YYYY-MM-DD HH:mm" />
           </Form.Item>
           <Form.Item label="Phim" name="film" rules={[{ required: true, message: 'Vui lòng nhập tên phim' }]}>
@@ -163,7 +167,7 @@ const DanhSachSuatChieu = () => {
         onOk={handleAddModalOk}
       >
         <Form form={form} layout="vertical">
-          <Form.Item label="Ngày giờ" name="datetime" rules={[{ required: true, message: 'Vui lòng chọn ngày giờ' }]}>
+          <Form.Item label="Ngày giờ" name="start_time" rules={[{ required: true, message: 'Vui lòng chọn ngày giờ' }]}>
             <DatePicker showTime format="YYYY-MM-DD HH:mm" />
           </Form.Item>
           <Form.Item label="Phim" name="film" rules={[{ required: true, message: 'Vui lòng nhập tên phim' }]}>

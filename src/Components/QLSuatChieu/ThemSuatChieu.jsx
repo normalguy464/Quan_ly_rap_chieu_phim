@@ -25,8 +25,8 @@ const ThemSuatChieu = ({ isModalVisible, handleCancel }) => {
       .then((values) => {
         const showtimeData = {
           datetime: values.datetime.format('YYYY-MM-DD HH:mm'),
-          film: values.film,
-          room: values.room,
+          film: { title: values.film }, // Adjusted to match DanhSachSuatChieu
+          room: { name: values.room }, // Adjusted to match DanhSachSuatChieu
         };
         showTimeApi.createShowtime(showtimeData)
           .then(() => {
@@ -47,13 +47,15 @@ const ThemSuatChieu = ({ isModalVisible, handleCancel }) => {
         <Form.Item label="Chọn phim" name="film" rules={[{ required: true, message: 'Vui lòng chọn phim' }]}>
           <Select placeholder="Chọn phim">
             {films.map((film) => (
-              <Option key={film.id} value={film.name}>{film.name}</Option>
+              // Changed to film.title
+              <Option key={film.id} value={film.title}>{film.title}</Option>
             ))}
           </Select>
         </Form.Item>
         <Form.Item label="Chọn phòng chiếu" name="room" rules={[{ required: true, message: 'Vui lòng chọn phòng chiếu' }]}>
           <Select placeholder="Chọn phòng chiếu">
             {rooms.map((room) => (
+              // Changed to room.name
               <Option key={room.id} value={room.name}>{room.name}</Option>
             ))}
           </Select>

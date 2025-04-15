@@ -160,9 +160,9 @@ const DanhSachPhim = () => {
     },
     {
       title: 'Thể loại',
-      dataIndex: 'genre',
-      key: 'genre',
-      
+      dataIndex: 'genres',
+      key: 'genres',
+      render: (genres) => (Array.isArray(genres) ? genres.join(', ') : 'Không có'), // Ensure genres is handled as an array
     },
     {
       title: 'Hoạt động',
