@@ -33,7 +33,7 @@ export const useUserApi = () => {
 
     const createUser = async (body) => {
         try {
-            const res = await httpPrivate.post(`/user/create-account`, body);
+            const res = await httpPrivate.post(`/user/register`, body);
             if (res.status < 200 || res.status >= 300) {
                 throw new Error(`API Error: ${res.status} - ${res.statusText}`);
             }

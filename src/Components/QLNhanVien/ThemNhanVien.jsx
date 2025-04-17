@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Modal, Form, Input, DatePicker, Button, message } from 'antd';
 import { useUserApi } from '../../services/userService';
+import moment from 'moment'; // Import moment for date formatting
 
 const ThemNhanVien = ({ isModalVisible, handleCancel, employee, onEmployeeUpdated }) => {
   const [form] = Form.useForm();
@@ -10,13 +11,12 @@ const ThemNhanVien = ({ isModalVisible, handleCancel, employee, onEmployeeUpdate
     if (employee) {
       form.setFieldsValue({
         id: employee.id,
-        username: employee.username,
+        email: employee.email,
         full_name: employee.full_name,
-        birthdate: employee.birthdate ? moment(employee.birthdate, 'YYYY-MM-DD').startOf('day') : null,
+        username: employee.username,
+        birthdate: employee.birthdate ? moment(employee.birthdate, 'YYYY-MM-DD') : null,
         address: employee.address,
         phone_number: employee.phone_number,
-        email: employee.email,
-        roles: employee.roles || ['admin'],
       });
     } else {
       form.resetFields();
@@ -25,13 +25,18 @@ const ThemNhanVien = ({ isModalVisible, handleCancel, employee, onEmployeeUpdate
 
   const handleSubmit = async (values) => {
     try {
-      const formattedBirthdate = values.birthdate
-        ? values.birthdate.startOf('day').format('YYYY-MM-DD')
-        : null;
+      if (values.birthdate) {
+        values.birthdate = moment(values.birthdate).format('YYYY-MM-DD');
+      }
+
+      // Remove password if it's not provided
+      if (!values.password) {
+        delete values.password;
+      }
 
       const payload = {
         ...values,
-        birthdate: formattedBirthdate,
+        role_id: 2,
       };
 
       let success = false;
@@ -62,10 +67,7 @@ const ThemNhanVien = ({ isModalVisible, handleCancel, employee, onEmployeeUpdate
       }
     } catch (error) {
       console.error('Error submitting form:', error);
-      message.error(
-        'Đã xảy ra lỗi: ' +
-          (error.response?.data?.detail?.map((err) => err.msg).join(', ') || error.message || 'Không xác định')
-      );
+      message.error('Đã xảy ra lỗi: ' + (error.message || 'Không xác định'));
     }
   };
 
@@ -82,25 +84,28 @@ const ThemNhanVien = ({ isModalVisible, handleCancel, employee, onEmployeeUpdate
           <Input />
         </Form.Item>
         <Form.Item
-          name="username"
-          label="Tên đăng nhập"
-          rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}
+          name="email"
+          label="Email"
+          rules={[
+            { required: true, message: 'Vui lòng nhập email!' },
+            { type: 'email', message: 'Email không hợp lệ!' },
+          ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
           name="full_name"
-          label="Tên"
-          rules={[{ required: true, message: 'Vui lòng nhập tên!' }]}
+          label="Họ và tên"
+          rules={[{ required: true, message: 'Vui lòng nhập họ và tên!' }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
           name="birthdate"
-          label="Ngày tháng năm sinh"
-          rules={[{ required: true, message: 'Vui lòng nhập ngày tháng năm sinh!' }]}
+          label="Ngày sinh"
+          rules={[{ required: true, message: 'Vui lòng chọn ngày sinh!' }]}
         >
-          <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
+          <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
         </Form.Item>
         <Form.Item
           name="address"
@@ -117,22 +122,22 @@ const ThemNhanVien = ({ isModalVisible, handleCancel, employee, onEmployeeUpdate
           <Input />
         </Form.Item>
         <Form.Item
-          name="email"
-          label="Email"
-          rules={[
-            { required: true, message: 'Vui lòng nhập email!' },
-            { type: 'email', message: 'Email không hợp lệ!' },
-          ]}
+          name="username"
+          label="Tên đăng nhập"
+          rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}
         >
           <Input />
         </Form.Item>
-        {/* <Form.Item
-          name="roles"
-          label="Vai trò"
-          rules={[{ required: true, message: 'Vui lòng chọn vai trò!' }]}
-        >
-          <Input />
-        </Form.Item> */}
+        {/* Only show password field when adding a new employee */}
+        {!employee && (
+          <Form.Item
+            name="password"
+            label="Mật khẩu"
+            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
+          >
+            <Input.Password />
+          </Form.Item>
+        )}
         <Form.Item className="text-right">
           <Button type="default" onClick={handleCancel} style={{ marginRight: 8 }}>
             Hủy

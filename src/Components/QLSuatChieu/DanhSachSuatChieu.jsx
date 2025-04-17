@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Button, Table, Form, Input, DatePicker } from 'antd';
+import { Modal, Button, Table, Form, Input, DatePicker, Select } from 'antd';
 import { useShowTimeApi } from '../../services/showTimeService';
 import moment from 'moment';
 import BackToDashboardButton from '../BackToDashBoard';
+import ThemSuatChieu from './ThemSuatChieu';
 const { Search } = Input;
+const { Option } = Select;
 
 const DanhSachSuatChieu = () => {
   const [data, setData] = useState([]);
@@ -44,10 +46,15 @@ const DanhSachSuatChieu = () => {
   const handleEditModalOk = async () => {
     try {
       const values = await form.validateFields();
-      const success = await showTimeService.updateShowtimeById(selectedShowtime.id, {
-        ...values,
-        start_time: values.start_time.format('YYYY-MM-DD HH:mm'),
-      });
+      const selectedFilm = data.find(item => item.film.id === values.film); // Find selected film
+      const selectedRoom = data.find(item => item.room.id === values.room); // Find selected room
+      const payload = {
+        name: `${selectedFilm?.film.title} - ${selectedRoom?.room.name}`, // Generate name using film and room
+        start_time: values.start_time ? values.start_time.format('YYYY-MM-DDTHH:mm:ss') : null, // Ensure start_time is formatted
+        film_id: values.film, // Use film ID
+        room_id: values.room, // Use room ID
+      };
+      const success = await showTimeService.updateShowtimeById(selectedShowtime.id, payload);
       if (success) {
         fetchShowtimes();
         setIsEditModalVisible(false);
@@ -92,10 +99,20 @@ const DanhSachSuatChieu = () => {
   const handleAddModalOk = async () => {
     try {
       const values = await form.validateFields();
+      const selectedFilm = data.find(item => item.film.id === values.film); // Find selected film by ID
+      const selectedRoom = data.find(item => item.room.id === values.room); // Find selected room by ID
+
+      if (!selectedFilm || !selectedRoom || !values.start_time) {
+        throw new Error('Missing required fields');
+      }
+
       const formattedValues = {
-        ...values,
-        start_time: values.start_time.format('YYYY-MM-DD HH:mm'),
+        name: `${selectedFilm.film.title} - ${selectedRoom.room.name}`, // Generate name using film and room
+        start_time: values.start_time.format('YYYY-MM-DDTHH:mm:ss'), // Ensure start_time is formatted
+        film_id: selectedFilm.film.id, // Use film ID
+        room_id: selectedRoom.room.id, // Use room ID
       };
+
       const success = await showTimeService.createShowtime(formattedValues);
       if (success) {
         fetchShowtimes();
@@ -152,32 +169,25 @@ const DanhSachSuatChieu = () => {
           <Form.Item label="Ngày giờ" name="start_time" rules={[{ required: true, message: 'Vui lòng chọn ngày giờ' }]}>
             <DatePicker showTime format="YYYY-MM-DD HH:mm" />
           </Form.Item>
-          <Form.Item label="Phim" name="film" rules={[{ required: true, message: 'Vui lòng nhập tên phim' }]}>
-            <Input />
+          <Form.Item label="Phim" name="film" rules={[{ required: true, message: 'Vui lòng chọn phim' }]}>
+            <Select placeholder="Chọn phim">
+              {data.map((item) => (
+                <Option key={item.film.id} value={item.film.id}>{item.film.title}</Option> // Use film.id as value
+              ))}
+            </Select>
           </Form.Item>
-          <Form.Item label="Phòng chiếu" name="room" rules={[{ required: true, message: 'Vui lòng nhập phòng chiếu' }]}>
-            <Input />
-          </Form.Item>
-        </Form>
-      </Modal>
-      <Modal
-        title="Thêm suất chiếu"
-        visible={isAddModalVisible}
-        onCancel={handleAddModalCancel}
-        onOk={handleAddModalOk}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item label="Ngày giờ" name="start_time" rules={[{ required: true, message: 'Vui lòng chọn ngày giờ' }]}>
-            <DatePicker showTime format="YYYY-MM-DD HH:mm" />
-          </Form.Item>
-          <Form.Item label="Phim" name="film" rules={[{ required: true, message: 'Vui lòng nhập tên phim' }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item label="Phòng chiếu" name="room" rules={[{ required: true, message: 'Vui lòng nhập phòng chiếu' }]}>
-            <Input />
+          <Form.Item label="Phòng chiếu" name="room" rules={[{ required: true, message: 'Vui lòng chọn phòng chiếu' }]}>
+            <Select placeholder="Chọn phòng chiếu">
+              {data.map((item) => (
+                <Option key={item.room.id} value={item.room.id}>{item.room.name} - {item.room.cinema.name}</Option> // Use room.id as value
+              ))}
+            </Select>
           </Form.Item>
         </Form>
       </Modal>
+      <ThemSuatChieu isModalVisible={isAddModalVisible} 
+      handleCancel={handleAddModalCancel}
+      onOk={handleAddModalOk}/>
     </>
   );
 };

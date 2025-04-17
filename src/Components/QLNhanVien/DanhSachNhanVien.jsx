@@ -15,7 +15,8 @@ const DanhSachNhanVien = () => {
     try {
       const users = await userService.getAllUser();
       if (Array.isArray(users)) {
-        const adminUsers = users.filter(user => user.roles[0] === 'admin');
+        const adminUsers = users.filter(user => user.roles[0] == 'admin'|| user.roles[0] == 'staff'); // Filter for admin users
+        console.log('Admin Users:', adminUsers); // Log the filtered admin users
         setData(adminUsers);
         setFilteredData(adminUsers);
       } else {
@@ -76,8 +77,8 @@ const DanhSachNhanVien = () => {
     },
     {
       title: 'Full Name',
-      dataIndex: 'fullname',
-      key: 'fullname',
+      dataIndex: 'full_name',
+      key: 'full_name',
     },
     {
       title: 'Role',

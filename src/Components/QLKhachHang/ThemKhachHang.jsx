@@ -29,12 +29,17 @@ const ThemKhachHang = ({ isModalVisible, handleCancel, customer, onCustomerUpdat
       if (values.birthdate) {
         values.birthdate = moment(values.birthdate).format('YYYY-MM-DD');
       }
+      const payload = {
+        ...values,
+        role_id: 1,
+        // birthdate: formattedBirthdate,
+      };
 
       let success = false;
       
       if (customer) {
-        // Update existing customer
-        success = await userService.updateUserById(customer.id, values);
+        console.log('Updating customer:', customer.id, payload); // Log the ID and payload for debugging
+        success = await userService.updateUserById(customer.id, payload);
         if (success) {
           message.success('Cập nhật khách hàng thành công!');
         } else {
@@ -43,7 +48,7 @@ const ThemKhachHang = ({ isModalVisible, handleCancel, customer, onCustomerUpdat
         }
       } else {
         // Create new customer
-        success = await userService.createUser(values);
+        success = await userService.createUser(payload);
         if (success) {
           message.success('Thêm khách hàng thành công!');
         } else {
@@ -95,13 +100,7 @@ const ThemKhachHang = ({ isModalVisible, handleCancel, customer, onCustomerUpdat
         >
           <Input />
         </Form.Item>
-        <Form.Item
-          name="username"
-          label="Tên đăng nhập"
-          rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]} // Added username field
-        >
-          <Input />
-        </Form.Item>
+        
         <Form.Item
           name="birthdate"
           label="Ngày sinh"
@@ -125,6 +124,22 @@ const ThemKhachHang = ({ isModalVisible, handleCancel, customer, onCustomerUpdat
         >
           <Input />
         </Form.Item>
+        <Form.Item
+          name="username"
+          label="Tên đăng nhập"
+          rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]} // Added username field
+        >
+          <Input />
+        </Form.Item>
+        {!customer && (
+                  <Form.Item
+                    name="password"
+                    label="Mật khẩu"
+                    rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
+                  >
+                    <Input.Password />
+                  </Form.Item>
+                )}
         <Form.Item className="text-right">
           <Button type="default" onClick={handleCancel} style={{ marginRight: 8 }}>
             Hủy

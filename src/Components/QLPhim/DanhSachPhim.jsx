@@ -4,6 +4,7 @@ import { useFilmApi } from '../../services/filmService';
 import { useGenreApi } from '../../services/genreService';
 import BackToDashboardButton from '../BackToDashBoard';
 import moment from 'moment';
+import ThemPhim from './ThemPhim';
 
 const { Search } = Input;
 
@@ -40,12 +41,15 @@ const DanhSachPhim = () => {
   };
 
   const handleEditFilm = (record) => {
-    const details = filmService.getFilmById(record.id);
-    console.log('Editing film:', details); // Log film details
-    setSelectedFilm(details);
+    setSelectedFilm(record);
     form.setFieldsValue({
       ...record,
       release_date: record.release_date ? moment(record.release_date) : null,
+      genre_ids: record.genres ? record.genres.map((genre) => genre.id) : [], // Update to genre_ids
+      poster_path: record.poster_path, // Add poster_path
+      status: record.status, // Add status
+      director: record.director, // Add director
+      actors: record.actors, // Add actors
     });
     setIsEditModalVisible(true);
   };
@@ -58,10 +62,13 @@ const DanhSachPhim = () => {
   const handleEditModalOk = async () => {
     try {
       const values = await form.validateFields();
-      const success = await filmService.updateFilmById(selectedFilm.id, {
+      const payload = {
         ...values,
         release_date: values.release_date.format('YYYY-MM-DD'),
-      });
+        genre_ids: values.genre_ids, // Update to genre_ids
+      }
+      console.log('Updating film with values:', payload); // Log values to be updated
+      const success = await filmService.updateFilmById(selectedFilm.id, payload);
       if (success) {
         fetchFilmList();
         setIsEditModalVisible(false);
@@ -111,7 +118,9 @@ const DanhSachPhim = () => {
       const formattedValues = {
         ...values,
         release_date: values.release_date ? values.release_date.format('YYYY-MM-DD') : null, // Format release date
+        genre_ids: values.genre_ids, // Update to genre_ids
       };
+      console.log('Adding film with values:', formattedValues); // Log values to be added
       const success = await filmService.createFilm(formattedValues); // Call API to create film
       if (success) {
         fetchFilmList(); // Refresh film list after adding
@@ -162,7 +171,7 @@ const DanhSachPhim = () => {
       title: 'Thể loại',
       dataIndex: 'genres',
       key: 'genres',
-      render: (genres) => (Array.isArray(genres) ? genres.join(', ') : 'Không có'), // Ensure genres is handled as an array
+      render: (genres) => (Array.isArray(genres) ? genres.map((genre) => genre.name).join(', ') : 'Không có'), // Map through genres to extract names
     },
     {
       title: 'Hoạt động',
@@ -219,56 +228,42 @@ const DanhSachPhim = () => {
           <Form.Item label="Tác giả" name="author" rules={[{ required: true, message: 'Vui lòng nhập tác giả' }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="Thể loại" name="genre" rules={[{ required: true, message: 'Vui lòng chọn thể loại' }]}>
-            <Select>
+          <Form.Item label="Thể loại" name="genre_ids" rules={[{ required: true, message: 'Vui lòng chọn thể loại' }]}>
+            <Select
+            mode="multiple" // Cho phép chọn nhiều thể loại
+            placeholder="Chọn thể loại"
+            allowClear>
               {genres.map((genre) => (
-                <Select.Option key={genre.id} value={genre.name}>
+                <Select.Option key={genre.id} value={genre.id}>
                   {genre.name}
                 </Select.Option>
               ))}
             </Select>
           </Form.Item>
-          <Form.Item label="Hoạt động" name="is_active" valuePropName="checked">
-            <Switch />
-          </Form.Item>
-        </Form>
-      </Modal>
-      <Modal
-        title="Thêm phim"
-        visible={isAddModalVisible}
-        onCancel={handleAddModalCancel}
-        onOk={handleAddModalOk}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item label="Tên phim" name="title" rules={[{ required: true, message: 'Vui lòng nhập tên phim' }]}>
+          <Form.Item label="Đường dẫn poster" name="poster_path" rules={[{ required: true, message: 'Vui lòng nhập đường dẫn poster' }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="Mô tả" name="description" rules={[{ required: true, message: 'Vui lòng nhập mô tả' }]}>
+          <Form.Item label="Trạng thái" name="status" rules={[{ required: true, message: 'Vui lòng chọn trạng thái' }]}>
+            <Select placeholder="Chọn trạng thái">
+              <Select.Option value="COMING_SOON">Sắp chiếu</Select.Option>
+              <Select.Option value="NOW_SHOWING">Đang chiếu</Select.Option>
+              <Select.Option value="ENDED">Đã kết thúc</Select.Option>
+            </Select>
+          </Form.Item>
+          <Form.Item label="Đạo diễn" name="director" rules={[{ required: true, message: 'Vui lòng nhập tên đạo diễn' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Diễn viên" name="actors" rules={[{ required: true, message: 'Vui lòng nhập danh sách diễn viên' }]}>
             <Input.TextArea />
           </Form.Item>
-          <Form.Item label="Thời lượng (phút)" name="duration" rules={[{ required: true, message: 'Vui lòng nhập thời lượng' }]}>
-            <Input type="number" />
-          </Form.Item>
-          <Form.Item label="Ngày phát hành" name="release_date" rules={[{ required: true, message: 'Vui lòng chọn ngày phát hành' }]}>
-            <DatePicker />
-          </Form.Item>
-          <Form.Item label="Tác giả" name="author" rules={[{ required: true, message: 'Vui lòng nhập tác giả' }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item label="Thể loại" name="genre" rules={[{ required: true, message: 'Vui lòng chọn thể loại' }]}>
-            <Select>
-              {genres.map((genre) => (
-                <Select.Option key={genre.id} value={genre.name}>
-                  {genre.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
           <Form.Item label="Hoạt động" name="is_active" valuePropName="checked">
             <Switch />
           </Form.Item>
         </Form>
       </Modal>
+      <ThemPhim isModalVisible={isAddModalVisible}
+        handleCancel={handleAddModalCancel}
+        onOk={handleAddModalOk}/>
     </>
   );
 };

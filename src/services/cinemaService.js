@@ -12,6 +12,15 @@ export const useCinemaApi = () => {
         }
     };
 
+    const getRoomsByCinemaId = async (cinemaId) => {
+        try {
+            const res = await httpPrivate.get(`/rooms/by-cinema-id/${cinemaId}`);
+            return res.data.rooms;
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     const getAllCinemaByPage = async (page, pageSize) => {
         try {
             const res = await httpPrivate.get(`/cinema/pageable?page=${page}&page_size=${pageSize}`);
@@ -107,6 +116,7 @@ export const useCinemaApi = () => {
         deleteCinema,
         deleteManyCinemas,
         deleteAllCinemas,
+        getRoomsByCinemaId,
     };
 
     return cinemaService;

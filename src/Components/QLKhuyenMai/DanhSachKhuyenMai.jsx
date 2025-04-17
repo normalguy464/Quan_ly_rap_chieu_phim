@@ -113,9 +113,10 @@ const DanhSachKhuyenMai = () => {
       key: 'description',
     },
     {
-      title: 'Start Date',
-      dataIndex: 'start_date',
-      key: 'start_date',
+      title: 'Create Date',
+      dataIndex: 'created_at',
+      key: 'created_at',
+      render: (date) => new Date(date).toLocaleDateString(), // Format date to display only the day
     },
     {
       title: 'Duration (days)',

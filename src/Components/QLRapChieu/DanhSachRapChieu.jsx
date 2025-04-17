@@ -16,7 +16,6 @@ const DanhSachRapChieu = () => {
   const [rooms, setRooms] = useState([]); // State để lưu danh sách phòng chiếu
   const [form] = Form.useForm();
   const cinemaService = useCinemaApi();
-  const roomService = useRoomApi(); // Sử dụng roomService
 
   const fetchCinemaList = async () => {
     try {
@@ -30,7 +29,7 @@ const DanhSachRapChieu = () => {
 
   const fetchRooms = async (cinemaId) => {
     try {
-      const roomsData = await roomService.getRoomsByCinemaId(cinemaId); // Lấy danh sách phòng từ API
+      const roomsData = await cinemaService.getRoomsByCinemaId(cinemaId); // Lấy danh sách phòng từ API
       setRooms(roomsData || []);
       setIsRoomModalVisible(true); // Hiển thị modal danh sách phòng chiếu
     } catch (error) {
@@ -178,7 +177,7 @@ const DanhSachRapChieu = () => {
           columns={[
             { title: 'ID', dataIndex: 'id', key: 'id' },
             { title: 'Tên phòng chiếu', dataIndex: 'name', key: 'name' },
-            { title: 'Số ghế', dataIndex: 'seats', key: 'seats' },
+            { title: 'Số ghế', dataIndex: 'capacity', key: 'capacity' },
           ]}
           dataSource={rooms}
           rowKey="id"
