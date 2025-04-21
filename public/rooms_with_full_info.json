@@ -1,0 +1,43 @@
+{
+  "cinema_1": [
+    {
+      "id": 1,
+      "name": "Room 1",
+      "type": "3D",
+      "seats": 81,
+      "key": 1
+    },
+    {
+      "id": 2,
+      "name": "Room 2",
+      "type": "IMAX",
+      "seats": 82,
+      "key": 2
+    }
+  ],
+  "cinema_2": [
+    {
+      "id": 3,
+      "name": "Room 3",
+      "type": "2D",
+      "seats": 83,
+      "key": 3
+    },
+    {
+      "id": 4,
+      "name": "Room 4",
+      "type": "3D",
+      "seats": 84,
+      "key": 4
+    }
+  ],
+  "cinema_3": [
+    {
+      "id": 5,
+      "name": "Room 5",
+      "type": "IMAX",
+      "seats": 85,
+      "key": 5
+    }
+  ]
+}
