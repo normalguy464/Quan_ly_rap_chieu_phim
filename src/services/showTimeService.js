@@ -6,7 +6,7 @@ export const useShowTimeApi = () => {
     const getAllShowtimes = async () => {
         try {
             const res = await httpPrivate.get('/showtimes/all');
-            return res.data.showtimes;
+            return res.data;
         } catch (error) {
             console.log(error);
         }
@@ -15,7 +15,7 @@ export const useShowTimeApi = () => {
     const getShowtimesByPage = async (page, pageSize) => {
         try {
             const res = await httpPrivate.get(`/showtimes/pageable?page=${page}&page_size=${pageSize}`);
-            return res.data.showtimes;
+            return { showtimes: res.data.showtimes, total: res.data.total_page }; // Return total pages
         } catch (error) {
             console.log(error);
         }

@@ -7,19 +7,20 @@ import BackToDashboardButton from '../BackToDashBoard';
 
 const DanhSachPhongChieu = () => {
   const [rooms, setRooms] = useState([]);
+  const [filteredRooms, setFilteredRooms] = useState([]); // State for filtered rooms
   const [cinemas, setCinemas] = useState([]); // State for cinemas
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [form] = Form.useForm();
-  const { getAllRooms, deleteRoom, updateRoom } = useRoomApi();
+  const { getAllRooms, deleteRoom, updateRoomById } = useRoomApi();
   const { getAllCinema } = useCinemaApi(); // Fetch cinemas
 
   const fetchRoomList = async () => {
     try {
       const data = await getAllRooms();
-      console.log('Fetched rooms:', data); // Debugging log
-      setRooms(data || []); // Ensure rooms is always an array
+      setRooms(data || []);
+      setFilteredRooms(data || []); // Initialize filteredRooms
     } catch (error) {
       console.error('Error fetching rooms:', error);
     }
@@ -36,7 +37,7 @@ const DanhSachPhongChieu = () => {
 
   const handleDeleteRoom = async (roomId) => {
     try {
-      const success = await deleteRoom(roomId);
+      const success = await roomApi.deleteRoom(roomId);
       if (success) {
         message.success('Phòng chiếu đã được xóa thành công!');
         fetchRoomList();
@@ -50,11 +51,12 @@ const DanhSachPhongChieu = () => {
 
   const handleEditRoom = (room) => {
     setSelectedRoom(room);
+    console.log('Selected room for editing:', room);
     form.setFieldsValue({
       name: room.name,
       detail: room.detail,
       capacity: room.capacity,
-      cinema_id: room.cinema_id, // Pre-fill cinema selection
+      cinema_id: room.cinema.id, // Pre-fill cinema selection
     });
     setIsEditModalVisible(true);
   };
@@ -67,7 +69,8 @@ const DanhSachPhongChieu = () => {
   const handleEditModalOk = async () => {
     try {
       const values = await form.validateFields();
-      const success = await updateRoom(selectedRoom.id, values);
+      console.log('Form values for editing:', values);
+      const success = await updateRoomById(selectedRoom.id, values);
       if (success) {
         message.success('Phòng chiếu đã được cập nhật thành công!');
         fetchRoomList();
@@ -81,7 +84,16 @@ const DanhSachPhongChieu = () => {
     }
   };
 
+  const handleSearch = (value) => {
+    const searchValue = value.toLowerCase();
+    const filtered = rooms.filter((room) =>
+      room.id.toString().includes(searchValue) || room.name.toLowerCase().includes(searchValue)
+    );
+    setFilteredRooms(filtered);
+  };
+
   useEffect(() => {
+    // Lấy danh sách phòng khi component được mount
     fetchRoomList();
     fetchCinemas(); // Fetch cinemas on component mount
   }, []);
@@ -128,13 +140,20 @@ const DanhSachPhongChieu = () => {
       <BackToDashboardButton />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>Danh sách phòng chiếu</h1>
-        <Button type="primary" onClick={() => setIsAddModalVisible(true)}>
-          Thêm phòng chiếu
-        </Button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Input.Search
+            placeholder="Tìm kiếm phòng chiếu"
+            onSearch={handleSearch}
+            style={{ width: 300, border: '2px solid #d9d9d9', borderRadius: 4 }}
+          />
+          <Button type="primary" onClick={() => setIsAddModalVisible(true)}>
+            Thêm phòng chiếu
+          </Button>
+        </div>
       </div>
       <Table
         columns={columns}
-        dataSource={rooms} // Ensure this is bound to the rooms state
+        dataSource={filteredRooms} // Use filteredRooms for the table
         rowKey="id" // Ensure each row has a unique key
       />
       <ThemPhongChieu
@@ -142,49 +161,51 @@ const DanhSachPhongChieu = () => {
         handleCancel={() => setIsAddModalVisible(false)}
         refreshRoomList={fetchRoomList}
       />
-      <Modal
-        title="Chỉnh sửa phòng chiếu"
-        visible={isEditModalVisible}
-        onCancel={handleEditModalCancel}
-        onOk={handleEditModalOk}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            label="Tên phòng chiếu"
-            name="name"
-            rules={[{ required: true, message: 'Vui lòng nhập tên phòng chiếu' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Chi tiết"
-            name="detail"
-            rules={[{ required: true, message: 'Vui lòng nhập chi tiết phòng chiếu' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Số ghế"
-            name="capacity"
-            rules={[{ required: true, message: 'Vui lòng nhập số ghế' }]}
-          >
-            <Input type="number" />
-          </Form.Item>
-          <Form.Item
-            label="Rạp chiếu"
-            name="cinema_id"
-            rules={[{ required: true, message: 'Vui lòng chọn rạp chiếu' }]}
-          >
-            <Select placeholder="Chọn rạp chiếu">
-              {cinemas.map((cinema) => (
-                <Select.Option key={cinema.id} value={cinema.id}>
-                  {cinema.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-        </Form>
-      </Modal>
+      {isEditModalVisible && (
+        <Modal
+          title="Chỉnh sửa phòng chiếu"
+          visible={isEditModalVisible}
+          onCancel={handleEditModalCancel}
+          onOk={handleEditModalOk}
+        >
+          <Form form={form} layout="vertical">
+            <Form.Item
+              label="Tên phòng chiếu"
+              name="name"
+              rules={[{ required: true, message: 'Vui lòng nhập tên phòng chiếu' }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Chi tiết"
+              name="detail"
+              rules={[{ required: true, message: 'Vui lòng nhập chi tiết phòng chiếu' }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Số ghế"
+              name="capacity"
+              rules={[{ required: true, message: 'Vui lòng nhập số ghế' }]}
+            >
+              <Input type="number" />
+            </Form.Item>
+            <Form.Item
+              label="Rạp chiếu"
+              name="cinema_id"
+              rules={[{ required: true, message: 'Vui lòng chọn rạp chiếu' }]}
+            >
+              <Select placeholder="Chọn rạp chiếu">
+                {cinemas.map((cinema) => (
+                  <Select.Option key={cinema.id} value={cinema.id}>
+                    {cinema.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Form>
+        </Modal>
+      )}
     </>
   );
 };

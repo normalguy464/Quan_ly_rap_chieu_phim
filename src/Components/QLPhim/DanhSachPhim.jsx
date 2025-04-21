@@ -24,6 +24,7 @@ const DanhSachPhim = () => {
       const films = await filmService.getAllFilms();
       setData(films);
       console.log('Fetched films:', films); // Log fetched films
+      console.log('Fetched films:', films); // Log fetched films
       setFilteredData(films);
     } catch (error) {
       console.error('Error fetching films:', error);
@@ -41,7 +42,9 @@ const DanhSachPhim = () => {
   };
 
   const handleEditFilm = (record) => {
-    setSelectedFilm(record);
+    const details = filmService.getFilmById(record.id);
+    console.log('Editing film:', details); // Log film details
+    setSelectedFilm(details);
     form.setFieldsValue({
       ...record,
       release_date: record.release_date ? moment(record.release_date) : null,

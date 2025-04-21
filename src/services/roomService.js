@@ -14,7 +14,7 @@ export const useRoomApi = () => {
 
     const getRoomsByCinemaId = async (cinemaId) => {
         try {
-            const res = await httpPrivate.get(`/rooms/cinema/${cinemaId}`);
+            const res = await httpPrivate.get(`/rooms/by-cinema-id/${cinemaId}`);
             return res.data.rooms;
         } catch (error) {
             console.error(`Error fetching rooms for cinema ID ${cinemaId}:`, error);
