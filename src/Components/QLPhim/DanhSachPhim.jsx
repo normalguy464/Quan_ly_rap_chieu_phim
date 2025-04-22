@@ -24,7 +24,6 @@ const DanhSachPhim = () => {
       const films = await filmService.getAllFilms();
       setData(films);
       console.log('Fetched films:', films); // Log fetched films
-      console.log('Fetched films:', films); // Log fetched films
       setFilteredData(films);
     } catch (error) {
       console.error('Error fetching films:', error);
@@ -42,9 +41,8 @@ const DanhSachPhim = () => {
   };
 
   const handleEditFilm = (record) => {
-    const details = filmService.getFilmById(record.id);
-    console.log('Editing film:', details); // Log film details
-    setSelectedFilm(details);
+    console.log('Editing film:', record); // Log record being edited
+    setSelectedFilm(record);
     form.setFieldsValue({
       ...record,
       release_date: record.release_date ? moment(record.release_date) : null,
@@ -70,7 +68,7 @@ const DanhSachPhim = () => {
         release_date: values.release_date.format('YYYY-MM-DD'),
         genre_ids: values.genre_ids, // Update to genre_ids
       }
-      console.log('Updating film with values:', payload); // Log values to be updated
+      console.log('Updating film with values:', payload);
       const success = await filmService.updateFilmById(selectedFilm.id, payload);
       if (success) {
         fetchFilmList();

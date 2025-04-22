@@ -7,10 +7,9 @@ const { Option } = Select;
 
 const ThemPhongChieu = ({ isModalVisible, handleCancel, refreshRoomList }) => {
   const [form] = Form.useForm();
-  const { createRoom } = useRoomApi();
   const { getAllCinema } = useCinemaApi();
   const [cinemas, setCinemas] = useState([]);
-
+  const roomService = useRoomApi();
   useEffect(() => {
     const fetchCinemas = async () => {
       try {
@@ -26,9 +25,12 @@ const ThemPhongChieu = ({ isModalVisible, handleCancel, refreshRoomList }) => {
   const onOk = () => {
     form.validateFields()
       .then(async (values) => {
-        const success = await createRoom(values.cinemaId, {
+        console.log(values); // Log values after successful validation
+        const success = await roomService.createRoom({
           name: values.name,
-          seats: values.seats,
+          detail: values.detail,
+          capacity: values.capacity,
+          cinema_id: values.cinemaId,
         });
         if (success) {
           message.success('Phòng chiếu đã được thêm thành công!');
@@ -73,11 +75,18 @@ const ThemPhongChieu = ({ isModalVisible, handleCancel, refreshRoomList }) => {
           <Input />
         </Form.Item>
         <Form.Item
+          label="Chi tiết"
+          name="detail"
+          rules={[{ required: true, message: 'Vui lòng nhập chi tiết phòng chiếu' }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
           label="Số ghế"
-          name="seats"
+          name="capacity"
           rules={[
             { required: true, message: 'Vui lòng nhập số ghế' },
-            { type: 'number', min: 1, message: 'Số ghế phải lớn hơn 0' },
+            
           ]}
         >
           <Input type="number" />

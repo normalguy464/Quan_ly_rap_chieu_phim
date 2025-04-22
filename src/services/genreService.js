@@ -70,6 +70,7 @@ export const useGenreApi = () => {
     const deleteGenre = async (genreId) => {
         try {
             const res = await httpPrivate.delete(`/genre/delete/${genreId}`);
+            console.log(res.data);
             if (res.status != 200) {
                 throw res.data;
             }
