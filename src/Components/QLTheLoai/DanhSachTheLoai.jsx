@@ -49,17 +49,24 @@ const DanhSachTheLoai = () => {
   };
 
   const handleDeleteGenre = async (id) => {
+    if (!id) {
+      console.error('ID không hợp lệ:', id); // Log lỗi nếu ID không hợp lệ
+      message.error('ID không hợp lệ. Không thể xóa thể loại.');
+      return;
+    }
     try {
+      console.log('Đang xóa thể loại với ID:', id); // Log ID trước khi gọi API
       const success = await genreService.deleteGenre(id);
       if (success) {
-        message.success('Xóa thể loại thành công'); // Show success message
+        message.success('Xóa thể loại thành công');
         fetchGenreList();
       } else {
-        message.error('Xóa thể loại thất bại'); // Show error message if API fails
+        console.error('API trả về thất bại khi xóa thể loại với ID:', id); // Log nếu API trả về thất bại
+        message.error('Xóa thể loại thất bại. Vui lòng thử lại.');
       }
     } catch (error) {
-      console.error('Error deleting genre:', error);
-      message.error('Đã xảy ra lỗi khi xóa thể loại'); // Show error message
+      console.error('Lỗi khi xóa thể loại:', error); // Log lỗi chi tiết
+      message.error(`Đã xảy ra lỗi khi xóa thể loại: ${error.message}`);
     }
   };
 
@@ -131,15 +138,7 @@ const DanhSachTheLoai = () => {
           <Button type="primary" style={{ marginRight: 8 }} onClick={() => handleEditGenre(record)}>Cập nhật</Button>
           <Button
             type="default"
-            onClick={() => {
-              AntdModal.confirm({
-                title: 'Xác nhận xóa',
-                content: 'Bạn có chắc chắn muốn xóa thể loại này?',
-                okText: 'Xóa',
-                cancelText: 'Hủy',
-                onOk: () => handleDeleteGenre(record.id), // Call delete function on confirmation
-              });
-            }}
+            onClick={() => handleDeleteGenre(record.id)}
           >
             Xóa
           </Button>

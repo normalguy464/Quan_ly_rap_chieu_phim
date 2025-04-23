@@ -30,9 +30,9 @@ export const useRoomApi = () => {
         }
     };
 
-    const createRoom = async (cinemaId, body) => {
+    const createRoom = async ( body) => {
         try {
-            const res = await httpPrivate.post(`/rooms/create/${cinemaId}`, body);
+            const res = await httpPrivate.post(`/rooms/create/`, body);
             if (res.status < 200 || res.status >= 300) {
                 throw new Error(`API Error: ${res.status} - ${res.statusText}`);
             }
