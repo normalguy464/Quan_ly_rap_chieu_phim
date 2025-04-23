@@ -138,18 +138,7 @@ const DanhSachTheLoai = () => {
           <Button type="primary" style={{ marginRight: 8 }} onClick={() => handleEditGenre(record)}>Cập nhật</Button>
           <Button
             type="default"
-            onClick={() => {
-              Modal.confirm({
-                title: 'Xác nhận xóa',
-                content: 'Bạn có chắc chắn muốn xóa thể loại này?',
-                okText: 'Xóa',
-                cancelText: 'Hủy',
-                onOk: async () => {
-                  console.log('Đã xác nhận xóa thể loại với ID:', record.id); // Log ID for debugging
-                  await handleDeleteGenre(record.id); // Ensure the delete function is awaited
-                },
-              });
-            }}
+            onClick={() => handleDeleteGenre(record.id)}
           >
             Xóa
           </Button>

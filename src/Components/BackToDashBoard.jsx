@@ -12,7 +12,7 @@ const BackToDashboardButton = ({ style }) => {
       icon={<HomeOutlined />}
       style={{ marginBottom: 16, ...style }}
     >
-      <Link to={''}>Quay về trang chủ</Link>
+      <Link to={'/'}>Quay về trang chủ</Link>
     </Button>
   );
 };
