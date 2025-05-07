@@ -9,6 +9,10 @@ import DanhSachTheLoai from "../QLTheLoai/DanhSachTheLoai";
 import DanhSachKhuyenMai from "../QLKhuyenMai/DanhSachKhuyenMai";
 import DanhSachPhongChieu from "../QLPhongChieu/DanhSachPhongChieu";
 import Dashboard from "../DashBoard/Dashboard";
+// Import 3 pages thống kê mới
+import TopFilmRevenuePage from "../../Pages/TopFilmRevenuePage";
+import RevenueByCinemaPage from "../../Pages/RevenueByCinemaPage";
+import RevenueByMonthPage from "../../Pages/RevenueByMonthPage";
 
 export const routes = [
     {
@@ -19,9 +23,23 @@ export const routes = [
                 path: '/dashboard',
                 element: <Dashboard/>, 
             },
+            // Thêm 3 routes mới cho thống kê
+            {
+                path: '/top-film-revenue',
+                element: <TopFilmRevenuePage />,
+            },
+            {
+                path: '/revenue-by-cinema',
+                element: <RevenueByCinemaPage />,
+            },
+            {
+                path: '/revenue-by-month',
+                element: <RevenueByMonthPage />,
+            },
+            // Các routes khác giữ nguyên
             {
                 path: '/employee',
-                element: < DanhSachNhanVien/>, 
+                element: <DanhSachNhanVien/>, 
             },
             {
                 path: '/customer',
@@ -44,14 +62,13 @@ export const routes = [
                 element: <DanhSachSuatChieu />,
             },
             {
-                path:'/genre',
-                element:<DanhSachTheLoai/>
+                path: '/genre',
+                element: <DanhSachTheLoai/>
             },
             {
-                path:'/promotion',
-                element:<DanhSachKhuyenMai/>
+                path: '/promotion',
+                element: <DanhSachKhuyenMai/>
             },
-            
         ]
     }
 ]
