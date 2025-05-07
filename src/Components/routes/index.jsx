@@ -13,6 +13,12 @@ import Dashboard from "../DashBoard/Dashboard";
 import TopFilmRevenuePage from "../../Pages/TopFilmRevenuePage";
 import RevenueByCinemaPage from "../../Pages/RevenueByCinemaPage";
 import RevenueByMonthPage from "../../Pages/RevenueByMonthPage";
+import PromotionRatioChart from "../../Charts/PromotionRatioChart";
+import PaymentMethodChart from "../../Charts/PaymentMethodChart";
+import TopFilmRatingChart from "../../Charts/TopFilmRatingChart";
+import PaymentMethodPage from "../../Pages/Payment";
+import PromotionRatioPage from "../../Pages/PromotionRatioPage";
+import TopFilmRatingPage from "../../Pages/TopFilmRatingPage";
 
 export const routes = [
     {
@@ -35,6 +41,18 @@ export const routes = [
             {
                 path: '/revenue-by-month',
                 element: <RevenueByMonthPage />,
+            },
+            {
+                path: '/promotion-ratio',
+                element: <PromotionRatioPage />,
+            }, 
+            {
+                path: '/payment-method',
+                element: <PaymentMethodPage />,
+            },
+            {
+                path: '/film-rating',
+                element: <TopFilmRatingPage />,
             },
             // Các routes khác giữ nguyên
             {

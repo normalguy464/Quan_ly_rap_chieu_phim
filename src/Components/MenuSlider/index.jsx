@@ -55,6 +55,21 @@ function MenuSlider() {
           label: <Link to={'/revenue-by-month'}>Revenue By Month</Link>,
           icon: <LineChartOutlined />,
         },
+        {
+          key: '/promotion-ratio',
+          label: <Link to={'/promotion-ratio'}>Promotion Ratio</Link>,
+          icon: <LineChartOutlined />,
+        },
+        {
+          key: '/payment-method',
+          label: <Link to={'/payment-method'}>Payment Method</Link>,
+          icon: <LineChartOutlined />,
+        },
+        {
+          key: '/film-rating',
+          label: <Link to={'/film-rating'}>Film rating</Link>,
+          icon: <LineChartOutlined />,
+        },
       ],
     },
     {
