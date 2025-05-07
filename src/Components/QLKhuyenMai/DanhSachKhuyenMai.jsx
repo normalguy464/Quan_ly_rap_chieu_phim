@@ -82,7 +82,11 @@ const DanhSachKhuyenMai = () => {
   const handleAddModalOk = async () => {
     try {
       const values = await form.validateFields();
-      const success = await promotionService.createPromotion(values);
+      const payload = {
+        ...values,
+        staff_id:1, // Convert to ISO format
+      };
+      const success = await promotionService.createPromotion(payload);
       if (success) {
         fetchPromotionList();
         setIsAddModalVisible(false);

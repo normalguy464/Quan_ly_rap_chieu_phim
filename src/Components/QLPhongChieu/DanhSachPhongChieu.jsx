@@ -37,7 +37,7 @@ const DanhSachPhongChieu = () => {
 
   const handleDeleteRoom = async (roomId) => {
     try {
-      const success = await roomApi.deleteRoom(roomId);
+      const success = await deleteRoom(roomId);
       if (success) {
         message.success('Phòng chiếu đã được xóa thành công!');
         fetchRoomList();
