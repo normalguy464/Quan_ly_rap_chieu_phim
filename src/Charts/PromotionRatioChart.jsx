@@ -4,16 +4,23 @@ import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Line } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-// Register ChartJS components
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ChartDataLabels
+);
 
 const PromotionRatioChart = () => {
   const [chartData, setChartData] = useState(null);
@@ -44,7 +51,7 @@ const PromotionRatioChart = () => {
 
         // Prepare labels and datasets
         const labels = filteredData.map(item => `${item.month}/${item.year}`);
-        const usedRatioData = filteredData.map(item => (item.used_ratio * 100).toFixed(2));
+        const usedRatioData = filteredData.map(item => item.used_ratio); // Remove *100 conversion
         const usedCountData = filteredData.map(item => item.used_count);
 
         if (filteredData.length === 0) {
@@ -55,18 +62,20 @@ const PromotionRatioChart = () => {
             labels,
             datasets: [
               {
-                label: 'Tỷ lệ đã sử dụng (%)',
+                label: 'Tỷ lệ đã sử dụng',
                 data: usedRatioData,
+                backgroundColor: 'rgba(75, 192, 192, 0.7)',
                 borderColor: 'rgb(75, 192, 192)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                tension: 0.3,
+                borderWidth: 1,
+                yAxisID: 'y',
               },
               {
                 label: 'Số lượt đã sử dụng',
                 data: usedCountData,
+                backgroundColor: 'rgba(255, 99, 132, 0.7)',
                 borderColor: 'rgb(255, 99, 132)',
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                tension: 0.3,
+                borderWidth: 1,
+                yAxisID: 'y1',
               },
             ],
           });
@@ -85,12 +94,56 @@ const PromotionRatioChart = () => {
 
   const options = {
     responsive: true,
+    interaction: {
+      mode: 'index',
+      intersect: false,
+    },
     plugins: {
       title: {
         display: true,
         text: `Biểu đồ tỷ lệ sử dụng khuyến mãi ${month === 0 ? '' : monthNames[month]} năm ${year}`,
       },
+      datalabels: {
+        display: true,
+        color: 'black',
+        anchor: 'end',
+        align: 'top',
+        formatter: (value, context) => {
+          if (context.dataset.yAxisID === 'y') {
+            return value.toFixed(4);
+          }
+          return value;
+        }
+      }
     },
+    scales: {
+      y: {
+        type: 'linear',
+        display: true,
+        position: 'left',
+        min: 0,
+        max: 1,
+        ticks: {
+          callback: value => value.toFixed(2)
+        },
+        title: {
+          display: true,
+          text: 'Tỷ lệ sử dụng'
+        }
+      },
+      y1: {
+        type: 'linear',
+        display: true,
+        position: 'right',
+        grid: {
+          drawOnChartArea: false,
+        },
+        title: {
+          display: true,
+          text: 'Số lượt sử dụng'
+        }
+      }
+    }
   };
 
   const handleYearChange = (e) => {
@@ -126,7 +179,7 @@ const PromotionRatioChart = () => {
       ) : error ? (
         <div className="error-message">{error}</div>
       ) : (
-        <Line data={chartData} options={options} />
+        <Bar data={chartData} options={options} />
       )}
     </div>
   );

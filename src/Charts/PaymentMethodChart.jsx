@@ -73,7 +73,7 @@ const PaymentMethodChart = () => {
               label: 'Doanh thu (triệu VNĐ)',
               data: paymentMethods.map(method => {
                 const methodData = filteredData.filter(item => item.payment_method_name === method);
-                return methodData.reduce((sum, item) => sum + item.total_revenue / 1000000, 0);
+                return Number((methodData.reduce((sum, item) => sum + item.total_revenue / 1000000, 0)).toFixed(2));
               }),
               backgroundColor: 'rgba(255, 99, 132, 0.6)',
               borderColor: 'rgb(255, 99, 132)',
@@ -107,7 +107,7 @@ const PaymentMethodChart = () => {
             const label = context.dataset.label || '';
             const value = context.parsed.y;
             if (label.includes('Doanh thu')) {
-              return `${label}: ${new Intl.NumberFormat('vi-VN').format(value)} triệu VNĐ`;
+              return `${label}: ${value.toFixed(2)} triệu VNĐ`;
             }
             return `${label}: ${new Intl.NumberFormat('vi-VN').format(value)}`;
           }
