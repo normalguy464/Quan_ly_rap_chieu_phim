@@ -11,6 +11,9 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { Button } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
+import { exportToExcel } from '../utils/excelExport';
 
 ChartJS.register(
   CategoryScale,
@@ -27,13 +30,20 @@ const TopFilmRatingChart = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [displayCount, setDisplayCount] = useState(5); // Default show top 5
+  const [rawData, setRawData] = useState([]); // Lưu dữ liệu thô để xuất Excel
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:8000/visualization/top_film_rating');
-        const films = response.data.results
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/visualization/top_film_rating`);
+        const allFilms = response.data.results;
+        
+        // Lưu tất cả dữ liệu gốc
+        setRawData(allFilms);
+        
+        // Lọc và sắp xếp phim cho biểu đồ
+        const films = allFilms
           .sort((a, b) => b.avg_rating - a.avg_rating)
           .slice(0, displayCount);
 
@@ -74,6 +84,28 @@ const TopFilmRatingChart = () => {
 
     fetchData();
   }, [displayCount]);
+
+  // Hàm xử lý xuất Excel
+  const handleExportExcel = () => {
+    // Chỉ lấy top N phim theo giá trị hiện tại của displayCount
+    const topFilms = [...rawData]
+      .sort((a, b) => b.avg_rating - a.avg_rating)
+      .slice(0, displayCount);
+    
+    // Định dạng dữ liệu cho Excel
+    const formattedData = topFilms.map((film, index) => ({
+      'STT': index + 1,
+      'Tên phim': film.film_title,
+      'Điểm đánh giá trung bình': film.avg_rating.toFixed(2),
+      'Số lượt đánh giá': film.total_reviews
+    }));
+    
+    // Tạo tên file
+    const filename = `top-${displayCount}-phim-danh-gia-cao-nhat`;
+    
+    // Xuất file
+    exportToExcel(formattedData, filename);
+  };
 
   const options = {
     responsive: true,
@@ -134,20 +166,37 @@ const TopFilmRatingChart = () => {
 
   return (
     <div>
-      <div className="chart-controls" style={{ marginBottom: '20px' }}>
-        <label>
-          Hiển thị top:
-          <select
-            value={displayCount}
-            onChange={(e) => setDisplayCount(Number(e.target.value))}
-            style={{ marginLeft: '8px' }}
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={15}>15</option>
-          </select>
-        </label>
+      <div className="chart-controls" style={{ 
+        marginBottom: '20px', 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center' 
+      }}>
+        <div>
+          <label>
+            Hiển thị top:
+            <select
+              value={displayCount}
+              onChange={(e) => setDisplayCount(Number(e.target.value))}
+              style={{ marginLeft: '8px' }}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={15}>15</option>
+            </select>
+          </label>
+        </div>
+        
+        <Button
+          type="primary"
+          icon={<DownloadOutlined />}
+          onClick={handleExportExcel}
+          disabled={loading || error || rawData.length === 0}
+        >
+          Xuất Excel
+        </Button>
       </div>
+      
       {loading ? (
         <div>Đang tải dữ liệu...</div>
       ) : error ? (

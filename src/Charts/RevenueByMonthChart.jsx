@@ -12,6 +12,9 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { Button } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
+import { exportToExcel } from '../utils/excelExport';
 
 // Đăng ký các components cần thiết của Chart.js
 ChartJS.register(
@@ -33,6 +36,7 @@ const RevenueByMonthChart = () => {
   const [chartOptions, setChartOptions] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [rawData, setRawData] = useState([]);
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1; // getMonth() trả về 0-11
   const [year, setYear] = useState(currentYear > 2025 ? 2025 : (currentYear < 2024 ? 2024 : currentYear));
@@ -43,15 +47,34 @@ const RevenueByMonthChart = () => {
     'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
     'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
   ];
+  
+  // Hàm xử lý khi click xuất Excel
+  const handleExportExcel = () => {
+    // Dữ liệu đã được định dạng phù hợp cho Excel
+    const formattedData = rawData.map(item => ({
+      'Tháng': `Tháng ${item.month}`,
+      'Doanh thu': item.total_revenue.toLocaleString('vi-VN') + ' VND',
+      'Năm': item.year
+    }));
+    
+    // Tên file dựa trên tùy chọn đang hiển thị
+    const displayText = displayMode === 'nonzero' ? 'thang-co-doanh-thu' : 'tat-ca';
+    const filename = `doanh-thu-theo-thang-nam-${year}-${displayText}`;
+    
+    exportToExcel(formattedData, filename);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:8000/visualization/total_revenue_by_month');
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/visualization/total_revenue_by_month`);
         
         // Lọc dữ liệu theo năm
         const filteredData = response.data.results.filter(item => item.year === year);
+        
+        // Lưu dữ liệu thô cho xuất Excel
+        setRawData(filteredData);
         
         // Sắp xếp dữ liệu theo tháng
         const sortedData = filteredData.sort((a, b) => a.month - b.month);
@@ -217,21 +240,32 @@ const RevenueByMonthChart = () => {
 
   return (
     <div className="chart-container">
-      <div className="chart-controls" style={{ marginBottom: '20px', display: 'flex', gap: '20px' }}>
-        <label>
-          Chọn năm: 
-          <select value={year} onChange={handleYearChange} style={{ marginLeft: '8px' }}>
-            <option value={2025}>2025</option>
-            <option value={2024}>2024</option>
-          </select>
-        </label>
-        <label>
-          Hiển thị: 
-          <select value={displayMode} onChange={handleDisplayModeChange} style={{ marginLeft: '8px' }}>
-            <option value="all">Tất cả các tháng</option>
-            <option value="nonzero">Chỉ tháng có doanh thu</option>
-          </select>
-        </label>
+      <div className="chart-controls" style={{ marginBottom: '20px', display: 'flex', gap: '20px', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+          <label>
+            Chọn năm: 
+            <select value={year} onChange={handleYearChange} style={{ marginLeft: '8px' }}>
+              <option value={2025}>2025</option>
+              <option value={2024}>2024</option>
+            </select>
+          </label>
+          <label>
+            Hiển thị: 
+            <select value={displayMode} onChange={handleDisplayModeChange} style={{ marginLeft: '8px' }}>
+              <option value="all">Tất cả các tháng</option>
+              <option value="nonzero">Chỉ tháng có doanh thu</option>
+            </select>
+          </label>
+        </div>
+        
+        <Button 
+          type="primary" 
+          icon={<DownloadOutlined />} 
+          onClick={handleExportExcel}
+          disabled={loading || error}
+        >
+          Xuất Excel
+        </Button>
       </div>
       
       {loading ? (

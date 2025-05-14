@@ -11,6 +11,9 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { Button } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
+import { exportToExcel } from '../utils/excelExport';
 
 // Đăng ký các components cần thiết của Chart.js
 ChartJS.register(
@@ -31,6 +34,7 @@ const TopFilmChart = () => {
   const [chartOptions, setChartOptions] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [rawData, setRawData] = useState([]);
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1; // getMonth() trả về 0-11
   const [year, setYear] = useState(currentYear > 2025 ? 2025 : (currentYear < 2024 ? 2024 : currentYear));
@@ -42,12 +46,29 @@ const TopFilmChart = () => {
     'Tất cả các tháng', 'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
     'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
   ];
+  
+  // Hàm xử lý khi click xuất Excel
+  const handleExportExcel = () => {
+    // Dữ liệu đã được định dạng phù hợp cho Excel
+    const formattedData = rawData.map(item => ({
+      'Tên phim': item.film_title,
+      'Doanh thu': item.total_revenue.toLocaleString('vi-VN') + ' VND',
+      'Năm': item.year,
+      'Tháng': (!item.month || item.month === 0) ? 'Tất cả các tháng' : `Tháng ${item.month}`
+    }));
+    
+    // Tên file dựa trên tùy chọn đang hiển thị
+    const monthText = month === 0 ? 'tat-ca' : `thang-${month}`;
+    const filename = `top-${topCount}-phim-doanh-thu-cao-nam-${year}-${monthText}`;
+    
+    exportToExcel(formattedData, filename);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:8000/visualization/top_film_revenue');
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/visualization/top_film_revenue`);
         
         // Map the data to correct field names before filtering
         const mappedData = response.data.results.map(item => ({
@@ -93,6 +114,9 @@ const TopFilmChart = () => {
         // Sắp xếp theo doanh thu giảm dần
         const sortedData = processedData.sort((a, b) => b.total_revenue - a.total_revenue)
           .slice(0, topCount); // Lấy top N theo lựa chọn
+          
+        // Lưu dữ liệu thô cho xuất Excel
+        setRawData(sortedData);
         
         // Nếu không có dữ liệu, hiển thị thông báo
         if (sortedData.length === 0) {
@@ -248,30 +272,41 @@ const TopFilmChart = () => {
 
   return (
     <div className="chart-container">
-      <div className="chart-controls" style={{ marginBottom: '20px', display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-        <label>
-          Chọn năm: 
-          <select value={year} onChange={handleYearChange} style={{ marginLeft: '8px' }}>
-            <option value={2025}>2025</option>
-            <option value={2024}>2024</option>
-          </select>
-        </label>
-        <label>
-          Chọn tháng: 
-          <select value={month} onChange={handleMonthChange} style={{ marginLeft: '8px' }}>
-            {availableMonths.map((name, index) => (
-              <option key={index} value={index}>{name}</option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Hiển thị top: 
-          <select value={topCount} onChange={handleTopCountChange} style={{ marginLeft: '8px' }}>
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={15}>15</option>
-          </select>
-        </label>
+      <div className="chart-controls" style={{ marginBottom: '20px', display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+          <label>
+            Chọn năm: 
+            <select value={year} onChange={handleYearChange} style={{ marginLeft: '8px' }}>
+              <option value={2025}>2025</option>
+              <option value={2024}>2024</option>
+            </select>
+          </label>
+          <label>
+            Chọn tháng: 
+            <select value={month} onChange={handleMonthChange} style={{ marginLeft: '8px' }}>
+              {availableMonths.map((name, index) => (
+                <option key={index} value={index}>{name}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Hiển thị top: 
+            <select value={topCount} onChange={handleTopCountChange} style={{ marginLeft: '8px' }}>
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={15}>15</option>
+            </select>
+          </label>
+        </div>
+        
+        <Button 
+          type="primary" 
+          icon={<DownloadOutlined />} 
+          onClick={handleExportExcel}
+          disabled={loading || error}
+        >
+          Xuất Excel
+        </Button>
       </div>
       
       {loading ? (

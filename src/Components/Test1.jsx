@@ -47,7 +47,7 @@ const App = () => {
   const [isGenreModalVisible, setIsGenreModalVisible] = useState(false);
   const [isShowtimeModalVisible, setIsShowtimeModalVisible] = useState(false);
   const [isMovieModalVisible, setIsMovieModalVisible] = useState(false); // State for movie modal
-  const [activeView, setActiveView] = useState(null); 
+  const [activeView, setActiveView] = useState(null);
 
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -182,23 +182,25 @@ const App = () => {
       <Header
         style={{
           width: '99.5%',
-          position: 'absolute', 
-          top: '10px', 
+          position: 'absolute',
+          top: '10px',
           display: 'flex',
           alignItems: 'center',
+          justifyContent: 'space-between', // Thêm thuộc tính này để phân bố các phần tử
           padding: '0px 20px',
-          background: '#001529', 
+          background: '#001529',
           color: 'white',
-          borderRadius: '10px 0 0 0', 
-          zIndex: 1, // Đảm bảo header nằm trên các thành phần khác
+          borderRadius: '10px 0 0 0',
+          zIndex: 1,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <div className="logo" style={{ color: 'white', fontSize: 24, fontWeight: 'bold', marginRight: 20 }}>
-            Quản lý hệ thống rạp chiếu phim
-          </div>
+        <div className="logo" style={{ color: 'white', fontSize: 24, fontWeight: 'bold' }}>
+          Quản lý hệ thống rạp chiếu phim
+        </div>
+
+        <div>
           <Dropdown overlay={menu} trigger={['click']}>
-            <UserOutlined style={{ fontSize: 24, color: 'white', marginLeft: 1020, cursor: 'pointer' }} />
+            <UserOutlined style={{ fontSize: 24, color: 'white', cursor: 'pointer' }} />
           </Dropdown>
         </div>
       </Header>
@@ -221,7 +223,7 @@ const App = () => {
               marginTop: '16px', // Thêm khoảng cách để tránh header che khuất nội dung
             }}
           >
-            
+
             <div
               style={{
                 padding: 24,
@@ -244,7 +246,7 @@ const App = () => {
               {activeView === 'genres' && <DanhSachTheLoai />}
               {activeView === 'showtimes' && <DanhSachSuatChieu />}
               {activeView === 'films' && <DanhSachPhim />}  */}
-              <Outlet/>
+              <Outlet />
             </div>
           </Content>
           <Footer
@@ -252,7 +254,7 @@ const App = () => {
               textAlign: 'center',
             }}
           >
-            Ant Design ©{new Date().getFullYear()} Created by Ant UED
+            {/* Ant Design ©{new Date().getFullYear()} Created by Ant UED */}
           </Footer>
         </Layout>
       </Layout>
